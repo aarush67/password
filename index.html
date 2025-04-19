@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Strength Checker & Generator</title>
+    <title>Password Vault</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha1/0.6.0/sha1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         .strength-bar {
             height: 8px;
@@ -33,6 +34,7 @@
         }
         .input-with-icon .fa-eye:hover, .input-with-icon .fa-eye-slash:hover {
             color: #1f2937;
+            color: #e5e7eb;
         }
         .copy-check {
             opacity: 0;
@@ -42,100 +44,206 @@
         .copy-check.show {
             opacity: 1;
             transform: scale(1);
+            animation: bounce 0.3s ease;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark .glass {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .modal {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        .modal.show {
+            transform: translateY(0);
+            opacity: 1;
         }
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
         .btn {
             transition: transform 0.2s ease, background-color 0.2s ease;
+            position: relative;
+            overflow: hidden;
         }
         .btn:hover {
             transform: scale(1.02);
         }
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease, height 0.4s ease;
+        }
+        .btn:hover::after {
+            width: 200px;
+            height: 200px;
+        }
+        #strength-container {
+            display: none;
+        }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-100 to-cyan-100">
-    <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md">
-        <h1 class="text-3xl font-extrabold text-gray-900 mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-cyan-500">Password Vault</h1>
+<body class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-100 to-cyan-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+    <div class="glass rounded-3xl shadow-2xl p-8 w-full max-w-md relative">
+        <!-- Dark Mode Toggle -->
+        <button id="theme-toggle" class="absolute top-4 right-4 p-2 rounded-full bg-indigo-600 dark:bg-gray-700 text-white hover:bg-indigo-700 dark:hover:bg-gray-600 btn" title="Toggle theme">
+            <i class="fa fa-sun" id="theme-icon"></i>
+        </button>
+
+        <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-cyan-500 dark:from-indigo-400 dark:to-cyan-400">Password Vault</h1>
 
         <!-- Password Strength Checker -->
         <div class="mb-8">
-            <label for="password-input" class="block text-sm font-medium text-gray-700 mb-2">Check Password Strength</label>
+            <label for="password-input" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Check Password Strength</label>
             <div class="input-with-icon">
-                <input type="password" id="password-input" class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all" placeholder="Enter password">
+                <input type="password" id="password-input" class="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 transition-all" placeholder="Enter password">
                 <i class="fa fa-eye" id="toggle-password"></i>
             </div>
-            <div class="mt-3 hidden" id="strength-container">
+            <div id="strength-container" class="mt-3">
                 <div id="strength-bar" class="strength-bar w-0"></div>
-                <p id="strength-text" class="text-sm text-gray-600 mt-2"></p>
-                <p id="breach-text" class="text-sm text-red-600 mt-1 hidden">This password has been exposed in data breaches!</p>
+                <p id="strength-text" class="text-sm text-gray-600 dark:text-gray-300 mt-2"></p>
+                <p id="entropy-text" class="text-sm text-gray-600 dark:text-gray-300 mt-1"></p>
+                <p id="breach-text" class="text-sm text-red-600 dark:text-red-400 mt-1 hidden">This password has been exposed in data breaches!</p>
             </div>
         </div>
 
         <!-- Data Breach Checker -->
         <div class="mb-8">
-            <label for="breach-input" class="block text-sm font-medium text-gray-700 mb-2">Check Data Breach Exposure</label>
+            <label for="breach-input" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Check Data Breach Exposure</label>
             <div class="input-with-icon">
-                <input type="password" id="breach-input" class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all" placeholder="Enter password to check">
+                <input type="password" id="breach-input" class="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 transition-all" placeholder="Enter password to check">
                 <i class="fa fa-eye" id="toggle-breach-password"></i>
             </div>
-            <button id="check-breach-btn" class="w-full p-3 mt-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 btn">Check Breaches</button>
-            <p id="breach-result" class="text-sm text-gray-600 mt-2"></p>
+            <button id="check-breach-btn" class="w-full p-3 mt-3 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn">Check Breaches</button>
+            <p id="breach-result" class="text-sm text-gray-600 dark:text-gray-300 mt-2"></p>
         </div>
 
         <!-- Password Generator -->
         <div>
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">Generate Secure Password</h2>
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Generate Secure Password</h2>
             <div class="space-y-4">
                 <!-- Length Slider -->
                 <div>
-                    <label for="length" class="block text-sm font-medium text-gray-700">Length: <span id="length-value">12</span></label>
-                    <input type="range" id="length" min="8" max="32" value="12" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                    <label for="length" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Length: <span id="length-value">12</span></label>
+                    <input type="range" id="length" min="8" max="32" value="12" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-indigo-600 dark:accent-cyan-500">
                 </div>
 
                 <!-- Character Options -->
                 <div class="space-y-2">
                     <label class="flex items-center">
-                        <input type="checkbox" id="uppercase" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <span class="ml-2 text-sm text-gray-700">Uppercase (A-Z)</span>
+                        <input type="checkbox" id="uppercase" checked class="h-4 w-4 text-indigo-600 dark:text-cyan-500 focus:ring-indigo-500 dark:focus:ring-cyan-500 border-gray-300 dark:border-gray-600 rounded">
+                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-200">Uppercase (A-Z)</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" id="lowercase" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <span class="ml-2 text-sm text-gray-700">Lowercase (a-z)</span>
+                        <input type="checkbox" id="lowercase" checked class="h-4 w-4 text-indigo-600 dark:text-cyan-500 focus:ring-indigo-500 dark:focus:ring-cyan-500 border-gray-300 dark:border-gray-600 rounded">
+                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-200">Lowercase (a-z)</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" id="numbers" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <span class="ml-2 text-sm text-gray-700">Numbers (0-9)</span>
+                        <input type="checkbox" id="numbers" checked class="h-4 w-4 text-indigo-600 dark:text-cyan-500 focus:ring-indigo-500 dark:focus:ring-cyan-500 border-gray-300 dark:border-gray-600 rounded">
+                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-200">Numbers (0-9)</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" id="symbols" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <span class="ml-2 text-sm text-gray-700">Symbols (!@#$%)</span>
+                        <input type="checkbox" id="symbols" checked class="h-4 w-4 text-indigo-600 dark:text-cyan-500 focus:ring-indigo-500 dark:focus:ring-cyan-500 border-gray-300 dark:border-gray-600 rounded">
+                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-200">Symbols (!@#$%)</span>
                     </label>
                 </div>
 
                 <!-- Generated Password -->
                 <div class="flex items-center space-x-2 relative">
-                    <input type="text" id="generated-password" readonly class="w-full p-3 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-4 focus:ring-indigo-300" placeholder="Generated password">
-                    <button id="copy-btn" class="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 btn" title="Copy to clipboard">
+                    <input type="text" id="generated-password" readonly class="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500" placeholder="Generated password">
+                    <button id="copy-btn" class="p-3 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn" title="Copy to clipboard">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                         </svg>
                     </button>
-                    <i class="fa fa-check copy-check absolute right-14 top-1/2 transform -translate-y-1/2 text-cyan-500 drop-shadow-lg" id="copy-check"></i>
+                    <i class="fa fa-check copy-check absolute right-14 top-1/2 transform -translate-y-1/2 text-cyan-500 dark:text-cyan-400 drop-shadow-lg" id="copy-check"></i>
                 </div>
 
-                <!-- Generate Button -->
-                <button id="generate-btn" class="w-full p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 btn">Generate Password</button>
+                <!-- Generator Buttons -->
+                <div class="flex space-x-2">
+                    <button id="generate-btn" class="flex-1 p-3 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn">Generate Password</button>
+                    <button id="history-btn" class="p-3 bg-gray-600 dark:bg-gray-500 text-white rounded-xl hover:bg-gray-700 dark:hover:bg-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-400 btn" title="View password history">
+                        <i class="fa fa-history"></i>
+                    </button>
+                    <button id="qr-btn" class="p-3 bg-gray-600 dark:bg-gray-500 text-white rounded-xl hover:bg-gray-700 dark:hover:bg-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-400 btn" title="Generate QR code">
+                        <i class="fa fa-qrcode"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Password History Modal -->
+    <div id="history-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="glass rounded-2xl p-6 w-full max-w-sm modal">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Password History</h2>
+            <ul id="history-list" class="space-y-2 max-h-64 overflow-y-auto"></ul>
+            <button id="close-history-btn" class="w-full p-3 mt-4 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn">Close</button>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qr-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="glass rounded-2xl p-6 w-full max-w-sm modal">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Password QR Code</h2>
+            <div id="qrcode" class="flex justify-center mb-4"></div>
+            <button id="close-qr-btn" class="w-full p-3 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn">Close</button>
+        </div>
+    </div>
+
     <script>
+        // Theme Management
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+        function setTheme(isDark) {
+            document.body.classList.toggle('dark', isDark);
+            themeIcon.className = isDark ? 'fa fa-moon' : 'fa fa-sun';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme === 'dark');
+        } else {
+            setTheme(prefersDark.matches);
+        }
+
+        themeToggle.addEventListener('click', () => {
+            setTheme(!document.body.classList.contains('dark'));
+        });
+
+        prefersDark.addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                setTheme(e.matches);
+            }
+        });
+
         // Password Strength Checker
         const passwordInput = document.getElementById('password-input');
         const strengthBar = document.getElementById('strength-bar');
         const strengthText = document.getElementById('strength-text');
+        const entropyText = document.getElementById('entropy-text');
         const breachText = document.getElementById('breach-text');
         const strengthContainer = document.getElementById('strength-container');
         const togglePassword = document.getElementById('toggle-password');
@@ -158,6 +266,91 @@
             const type = breachInput.type === 'password' ? 'text' : 'password';
             breachInput.type = type;
             toggleBreachPassword.className = type === 'password' ? 'fa fa-eye' : 'fa fa-eye-slash';
+        });
+
+        // Password History and QR Code
+        const historyBtn = document.getElementById('history-btn');
+        const historyModal = document.getElementById('history-modal');
+        const historyList = document.getElementById('history-list');
+        const closeHistoryBtn = document.getElementById('close-history-btn');
+        const qrBtn = document.getElementById('qr-btn');
+        const qrModal = document.getElementById('qr-modal');
+        const qrCodeDiv = document.getElementById('qrcode');
+        const closeQrBtn = document.getElementById('close-qr-btn');
+
+        let passwordHistory = JSON.parse(localStorage.getItem('passwordHistory')) || [];
+
+        function savePasswordToHistory(password) {
+            if (password && !passwordHistory.includes(password)) {
+                passwordHistory.unshift(password);
+                if (passwordHistory.length > 5) passwordHistory.pop();
+                localStorage.setItem('passwordHistory', JSON.stringify(passwordHistory));
+            }
+        }
+
+        function displayPasswordHistory() {
+            historyList.innerHTML = '';
+            if (passwordHistory.length === 0) {
+                historyList.innerHTML = '<li class="text-sm text-gray-600 dark:text-gray-300">No passwords in history.</li>';
+                return;
+            }
+            passwordHistory.forEach((pwd, index) => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg';
+                li.innerHTML = `
+                    <span class="text-sm text-gray-700 dark:text-gray-200 truncate">${pwd}</span>
+                    <button class="copy-history-btn p-1 bg-indigo-600 dark:bg-cyan-600 text-white rounded hover:bg-indigo-700 dark:hover:bg-cyan-700" data-pwd="${pwd}" title="Copy">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                    </button>
+                `;
+                historyList.appendChild(li);
+            });
+            document.querySelectorAll('.copy-history-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(btn.dataset.pwd);
+                    const check = document.createElement('i');
+                    check.className = 'fa fa-check text-cyan-500 dark:text-cyan-400 ml-2';
+                    btn.appendChild(check);
+                    setTimeout(() => check.remove(), 2000);
+                });
+            });
+        }
+
+        historyBtn.addEventListener('click', () => {
+            displayPasswordHistory();
+            historyModal.classList.remove('hidden');
+            setTimeout(() => historyModal.querySelector('.modal').classList.add('show'), 10);
+        });
+
+        closeHistoryBtn.addEventListener('click', () => {
+            historyModal.querySelector('.modal').classList.remove('show');
+            setTimeout(() => historyModal.classList.add('hidden'), 300);
+        });
+
+        qrBtn.addEventListener('click', () => {
+            const password = generatedPasswordInput.value;
+            if (!password) {
+                alert('Generate a password first!');
+                return;
+            }
+            qrCodeDiv.innerHTML = '';
+            new QRCode(qrCodeDiv, {
+                text: password,
+                width: 128,
+                height: 128,
+                colorDark: '#1f2937',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            qrModal.classList.remove('hidden');
+            setTimeout(() => qrModal.querySelector('.modal').classList.add('show'), 10);
+        });
+
+        closeQrBtn.addEventListener('click', () => {
+            qrModal.querySelector('.modal').classList.remove('show');
+            setTimeout(() => qrModal.classList.add('hidden'), 300);
         });
 
         async function checkPasswordBreach(password) {
@@ -183,16 +376,24 @@
             }
         }
 
+        function calculateEntropy(password) {
+            if (!password) return 0;
+            const charSet = new Set(password).size;
+            const length = password.length;
+            return (Math.log2(charSet) * length).toFixed(2);
+        }
+
         function checkPasswordStrength(password) {
             if (!password) {
-                strengthContainer.classList.add('hidden');
+                strengthContainer.style.display = 'none';
                 strengthBar.className = 'strength-bar w-0';
                 strengthText.textContent = '';
+                entropyText.textContent = '';
                 breachText.classList.add('hidden');
                 return;
             }
 
-            strengthContainer.classList.remove('hidden');
+            strengthContainer.style.display = 'block';
             let score = 0;
             if (password.length > 8) score += 20;
             if (password.length > 12) score += 20;
@@ -215,8 +416,19 @@
 
             strengthBar.className = `strength-bar ${color} w-${score}/5 animate`;
             strengthText.textContent = `Strength: ${text}`;
+            entropyText.textContent = `Entropy: ${calculateEntropy(password)} bits`;
             setTimeout(() => strengthBar.classList.remove('animate'), 500);
         }
+
+        function initializeStrengthChecker() {
+            strengthContainer.style.display = 'none';
+            strengthBar.className = 'strength-bar w-0';
+            strengthText.textContent = '';
+            entropyText.textContent = '';
+            breachText.classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeStrengthChecker);
 
         let debounceTimer;
         passwordInput.addEventListener('input', async () => {
@@ -231,6 +443,7 @@
                     if (breached) {
                         strengthBar.className = 'strength-bar bg-red-500 w-1/5 animate';
                         strengthText.textContent = 'Strength: Unsafe (Breached)';
+                        entropyText.textContent = `Entropy: ${calculateEntropy(password)} bits`;
                         setTimeout(() => strengthBar.classList.remove('animate'), 500);
                     }
                 }, 500);
@@ -241,17 +454,17 @@
             const password = breachInput.value;
             if (!password) {
                 breachResult.textContent = 'Please enter a password to check.';
-                breachResult.className = 'text-sm text-red-600 mt-2';
+                breachResult.className = 'text-sm text-red-600 dark:text-red-400 mt-2';
                 return;
             }
 
             const { breached, count } = await checkPasswordBreach(password);
             if (breached) {
                 breachResult.textContent = `Password found in ${count} breaches!`;
-                breachResult.className = 'text-sm text-red-600 mt-2';
+                breachResult.className = 'text-sm text-red-600 dark:text-red-400 mt-2';
             } else {
                 breachResult.textContent = 'No breaches found. This password appears safe.';
-                breachResult.className = 'text-sm text-cyan-600 mt-2';
+                breachResult.className = 'text-sm text-cyan-600 dark:text-cyan-400 mt-2';
             }
         });
 
@@ -302,6 +515,7 @@
             while (isBreached && attempts < maxAttempts) {
                 password = '';
                 for (let i = 0; i < length; i++) {
+                   SoupStrainer
                     const randomIndex = Math.floor(Math.random() * chars.length);
                     password += chars[randomIndex];
                 }
@@ -316,6 +530,7 @@
             }
 
             generatedPasswordInput.value = password;
+            savePasswordToHistory(password);
             checkPasswordStrength(password);
             breachText.classList.add('hidden');
         }
@@ -324,7 +539,7 @@
 
         copyBtn.addEventListener('click', () => {
             generatedPasswordInput.select();
-            document.execCommand('copy');
+            navigator.clipboard.writeText(generatedPasswordInput.value);
             copyCheck.classList.add('show');
             setTimeout(() => {
                 copyCheck.classList.remove('show');
