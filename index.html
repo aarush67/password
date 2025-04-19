@@ -32,9 +32,14 @@
             color: #6b7280;
             transition: color 0.2s ease;
         }
+        .dark .input-with-icon .fa-eye, .dark .input-with-icon .fa-eye-slash {
+            color: #e5e7eb;
+        }
         .input-with-icon .fa-eye:hover, .input-with-icon .fa-eye-slash:hover {
             color: #1f2937;
-            color: #e5e7eb;
+        }
+        .dark .input-with-icon .fa-eye:hover, .dark .input-with-icon .fa-eye-slash:hover {
+            color: #ffffff;
         }
         .copy-check {
             opacity: 0;
@@ -104,7 +109,7 @@
 <body class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-100 to-cyan-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
     <div class="glass rounded-3xl shadow-2xl p-8 w-full max-w-md relative">
         <!-- Dark Mode Toggle -->
-        <button id="theme-toggle" class="absolute top-4 right-4 p-2 rounded-full bg-indigo-600 dark:bg-gray-700 text-white hover:bg-indigo-700 dark:hover:bg-gray-600 btn" title="Toggle theme">
+        <button id="theme-toggle" class="absolute top-4 right-4 p-2 rounded-full bg-indigo-600 dark:bg-gray-700 text-white hover:bg-indigo-700 dark:hover:bg-gray-600 btn" title="Toggle theme" aria-label="Toggle theme">
             <i class="fa fa-sun" id="theme-icon"></i>
         </button>
 
@@ -132,7 +137,7 @@
                 <input type="password" id="breach-input" class="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 transition-all" placeholder="Enter password to check">
                 <i class="fa fa-eye" id="toggle-breach-password"></i>
             </div>
-            <button id="check-breach-btn" class="w-full p-3 mt-3 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn">Check Breaches</button>
+            <button id="check-breach-btn" class="w-full p-3 mt-3 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn" aria-label="Check for breaches">Check Breaches</button>
             <p id="breach-result" class="text-sm text-gray-600 dark:text-gray-300 mt-2"></p>
         </div>
 
@@ -169,7 +174,7 @@
                 <!-- Generated Password -->
                 <div class="flex items-center space-x-2 relative">
                     <input type="text" id="generated-password" readonly class="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500" placeholder="Generated password">
-                    <button id="copy-btn" class="p-3 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn" title="Copy to clipboard">
+                    <button id="copy-btn" class="p-3 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn" title="Copy to clipboard" aria-label="Copy to clipboard">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                         </svg>
@@ -179,11 +184,11 @@
 
                 <!-- Generator Buttons -->
                 <div class="flex space-x-2">
-                    <button id="generate-btn" class="flex-1 p-3 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn">Generate Password</button>
-                    <button id="history-btn" class="p-3 bg-gray-600 dark:bg-gray-500 text-white rounded-xl hover:bg-gray-700 dark:hover:bg-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-400 btn" title="View password history">
+                    <button id="generate-btn" class="flex-1 p-3 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn" aria-label="Generate password">Generate Password</button>
+                    <button id="history-btn" class="p-3 bg-gray-600 dark:bg-gray-500 text-white rounded-xl hover:bg-gray-700 dark:hover:bg-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-400 btn" title="View password history" aria-label="View password history">
                         <i class="fa fa-history"></i>
                     </button>
-                    <button id="qr-btn" class="p-3 bg-gray-600 dark:bg-gray-500 text-white rounded-xl hover:bg-gray-700 dark:hover:bg-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-400 btn" title="Generate QR code">
+                    <button id="qr-btn" class="p-3 bg-gray-600 dark:bg-gray-500 text-white rounded-xl hover:bg-gray-700 dark:hover:bg-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-400 btn" title="Generate QR code" aria-label="Generate QR code">
                         <i class="fa fa-qrcode"></i>
                     </button>
                 </div>
@@ -196,7 +201,7 @@
         <div class="glass rounded-2xl p-6 w-full max-w-sm modal">
             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Password History</h2>
             <ul id="history-list" class="space-y-2 max-h-64 overflow-y-auto"></ul>
-            <button id="close-history-btn" class="w-full p-3 mt-4 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn">Close</button>
+            <button id="close-history-btn" class="w-full p-3 mt-4 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn" aria-label="Close history modal">Close</button>
         </div>
     </div>
 
@@ -205,7 +210,7 @@
         <div class="glass rounded-2xl p-6 w-full max-w-sm modal">
             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Password QR Code</h2>
             <div id="qrcode" class="flex justify-center mb-4"></div>
-            <button id="close-qr-btn" class="w-full p-3 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn">Close</button>
+            <button id="close-qr-btn" class="w-full p-3 bg-indigo-600 dark:bg-cyan-600 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-cyan-500 btn" aria-label="Close QR code modal">Close</button>
         </div>
     </div>
 
@@ -512,27 +517,33 @@
             let attempts = 0;
             const maxAttempts = 10;
 
-            while (isBreached && attempts < maxAttempts) {
-                password = '';
-                for (let i = 0; i < length; i++) {
-                   SoupStrainer
-                    const randomIndex = Math.floor(Math.random() * chars.length);
-                    password += chars[randomIndex];
+            try {
+                while (isBreached && attempts < maxAttempts) {
+                    password = '';
+                    for (let i = 0; i < length; i++) {
+                        const randomIndex = Math.floor(Math.random() * chars.length);
+                        password += chars[randomIndex];
+                    }
+                    console.log(`Attempt ${attempts + 1}: Generated password: ${password}`);
+                    const { breached } = await checkPasswordBreach(password);
+                    isBreached = breached;
+                    attempts++;
                 }
-                const { breached } = await checkPasswordBreach(password);
-                isBreached = breached;
-                attempts++;
-            }
 
-            if (isBreached) {
-                alert('Could not generate a secure password after multiple attempts. Try increasing length or character types.');
-                return;
-            }
+                if (isBreached) {
+                    console.warn('Failed to generate unbreached password after max attempts');
+                    alert('Could not generate a secure password after multiple attempts. Try increasing length or character types.');
+                    return;
+                }
 
-            generatedPasswordInput.value = password;
-            savePasswordToHistory(password);
-            checkPasswordStrength(password);
-            breachText.classList.add('hidden');
+                generatedPasswordInput.value = password;
+                savePasswordToHistory(password);
+                checkPasswordStrength(password);
+                breachText.classList.add('hidden');
+            } catch (error) {
+                console.error('Error in generatePassword:', error);
+                alert('An error occurred while generating the password. Please try again.');
+            }
         }
 
         generateBtn.addEventListener('click', generatePassword);
