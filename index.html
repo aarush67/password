@@ -472,7 +472,7 @@
                 savePasswords(updatedPasswords);
             };
 
-            const sharePassword = async (pwd) => {
+            const sharePasswordEntry = async (pwd) => {
                 if (!sessionToken) return;
                 const { encrypted, salt, iv } = await encryptData(pwd.password, masterPassword);
                 const shareData = btoa(JSON.stringify({
@@ -637,7 +637,7 @@
                                         </button>
                                         <button
                                             className="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-                                            onClick={() => sharePassword(pwd)}
+                                            onClick={() => sharePasswordEntry(pwd)}
                                             title="Share Password"
                                             aria-label="Share password"
                                         >
