@@ -4,94 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Password Vault</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha1/0.6.0/sha1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/totp-generator/0.0.14/totp-generator.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.6/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
     <style>
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-        .sidebar {
-            transition: transform 0.3s ease;
-        }
-        .sidebar-hidden {
-            transform: translateX(-100%);
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        }
-        .dark .glass {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-        .modal {
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            transform: scale(0.9);
-            opacity: 0;
-        }
-        .modal.show {
-            transform: scale(1);
-            opacity: 1;
-        }
-        .strength-bar {
-            height: 10px;
-            border-radius: 5px;
-            transition: width 0.4s ease, background-color 0.4s ease;
-        }
-        .blur-sensitive {
-            filter: blur(4px);
-            transition: filter 0.2s ease;
-        }
-        .blur-sensitive:hover {
-            filter: none;
-        }
-        .micro-interaction {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .micro-interaction:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        .tooltip {
-            position: absolute;
-            background: #1f2937;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 13px;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-        .spinner {
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #06b6d4;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
+        body{font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;margin:0}.min-h-screen{min-height:100vh}.bg-gradient-to-br{background-image:linear-gradient(to bottom right,#c7d2fe,#a5b4fc)}.dark\:bg-gradient-to-br{background-image:linear-gradient(to bottom right,#111827,#1f2937)}.transition-colors{transition-property:color,background-color,border-color,outline-color,transition-duration:.5s}.flex{display:flex}.h-screen{height:100vh}.fixed{position:fixed}.inset-y-0{top:0;bottom:0}.left-0{left:0}.w-64{width:16rem}.bg-gray-800{--tw-bg-opacity:1;background-color:rgb(31 41 55 / var(--tw-bg-opacity))}.dark\:bg-gray-900{background-color:rgb(17 24 39 / var(--tw-bg-opacity))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity))}.p-4{padding:1rem}.z-50{z-index:50}.text-2xl{font-size:1.5rem;line-height:2rem}.font-bold{font-weight:700}.mb-6{margin-bottom:1.5rem}.bg-clip-text{background-clip:text}.text-transparent{color:transparent}.bg-gradient-to-r{background-image:linear-gradient(to right,#22d3ee,#4f46e5)}.w-full{width:100%}.p-2{padding:.5rem}.mb-4{margin-bottom:1rem}.bg-gray-700{--tw-bg-opacity:1;background-color:rgb(55 65 81 / var(--tw-bg-opacity))}.rounded-lg{border-radius:.5rem}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow, 0 0 #0000)}.focus\:ring-cyan-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(6 182 212 / var(--tw-ring-opacity))}.mb-2{margin-bottom:.5rem}.hover\:bg-gray-700:hover{--tw-bg-opacity:1;background-color:rgb(55 65 81 / var(--tw-bg-opacity))}.text-left{text-align:left}.absolute{position:absolute}.top-4{top:1rem}.right-4{right:1rem}.rounded-full{border-radius:9999px}.bg-cyan-600{--tw-bg-opacity:1;background-color:rgb(8 145 178 / var(--tw-bg-opacity))}.hover\:bg-cyan-700:hover{--tw-bg-opacity:1;background-color:rgb(6 182 212 / var(--tw-bg-opacity))}.flex-1{flex:1 1 0%}.p-8{padding:2rem}.ml-64{margin-left:16rem}.ml-0{margin-left:0}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.3s}.bg-indigo-600{--tw-bg-opacity:1;background-color:rgb(79 70 229 / var(--tw-bg-opacity))}.dark\:bg-cyan-600{background-color:rgb(8 145 178 / var(--tw-bg-opacity))}.hover\:bg-indigo-700:hover{--tw-bg-opacity:1;background-color:rgb(67 56 202 / var(--tw-bg-opacity))}.dark\:hover\:bg-cyan-700:hover{background-color:rgb(6 182 212 / var(--tw-bg-opacity))}.glass{background:rgba(255,255,255,.15);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.25);box-shadow:0 4px 30px rgba(0,0,0,.1)}.dark .glass{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15)}.rounded-3xl{border-radius:1.5rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-gray-900{--tw-text-opacity:1;color:rgb(17 24 39 / var(--tw-text-opacity))}.dark\:text-white{color:rgb(255 255 255 / var(--tw-text-opacity))}.p-3{padding:.75rem}.hover\:bg-gray-600:hover{--tw-bg-opacity:1;background-color:rgb(75 85 99 / var(--tw-bg-opacity))}.ml-2{margin-left:.5rem}.cursor-pointer{cursor:pointer}.hidden{display:none}.grid{display:grid}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.gap-4{gap:1rem}.bg-gray-50{--tw-bg-opacity:1;background-color:rgb(249 250 251 / var(--tw-bg-opacity))}.dark\:bg-gray-700{background-color:rgb(55 65 81 / var(--tw-bg-opacity))}.font-semibold{font-weight:600}.text-sm{font-size:.875rem;line-height:1.25rem}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity))}.dark\:text-gray-300{color:rgb(209 213 219 / var(--tw-text-opacity))}.mt-4{margin-top:1rem}.inset-0{top:0;right:0;bottom:0;left:0}.bg-black{--tw-bg-opacity:1;background-color:rgb(0 0 0 / var(--tw-bg-opacity))}.bg-opacity-50{--tw-bg-opacity:0.5}.items-center{align-items:center}.justify-center{justify-content:center}.p-6{padding:1.5rem}.max-w-md{max-width:28rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.mb-4{margin-bottom:1rem}.flex-row{flex-direction:row}.gap-2{gap:.5rem}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity))}.dark\:text-gray-200{color:rgb(229 231 235 / var(--tw-text-opacity))}.h-2{height:.5rem}.bg-gray-200{--tw-bg-opacity:1;background-color:rgb(229 231 235 / var(--tw-bg-opacity))}.dark\:bg-gray-600{background-color:rgb(75 85 99 / var(--tw-bg-opacity))}.accent-cyan-500{accent-color:#06b6d4}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem * var(--tw-space-y-reverse))}.h-4{height:1rem}.w-4{width:1rem}.text-cyan-600{--tw-text-opacity:1;color:rgb(8 145 178 / var(--tw-text-opacity))}.focus\:ring-cyan-500:focus{--tw-ring-color:rgb(6 182 212 / var(--tw-ring-opacity))}.mt-2{margin-top:.5rem}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity))}.dark\:text-red-400{color:rgb(248 113 113 / var(--tw-text-opacity))}.relative{position:relative}.right-3{right:.75rem}.top-1\/2{top:50%}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity))}.dark\:text-gray-100{color:rgb(243 244 246 / var(--tw-text-opacity))}.hover\:text-gray-700:hover{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity))}.dark\:hover\:text-gray-100:hover{color:rgb(243 244 246 / var(--tw-text-opacity))}.bg-yellow-600{--tw-bg-opacity:1;background-color:rgb(202 138 4 / var(--tw-bg-opacity))}.hover\:bg-yellow-700:hover{--tw-bg-opacity:1;background-color:rgb(161 98 7 / var(--tw-bg-opacity))}.bg-red-600{--tw-bg-opacity:1;background-color:rgb(220 38 38 / var(--tw-bg-opacity))}.hover\:bg-red-700:hover{--tw-bg-opacity:1;background-color:rgb(185 28 28 / var(--tw-bg-opacity))}.text-cyan-400{--tw-text-opacity:1;color:rgb(34 211 238 / var(--tw-text-opacity))}.dark\:text-cyan-400{color:rgb(34 211 238 / var(--tw-text-opacity))}.modal{transition:opacity .3s ease,transform .3s ease;transform:scale(.9);opacity:0}.modal.show{transform:scale(1);opacity:1}.strength-bar{height:10px;border-radius:5px;transition:width .4s ease,background-color .4s ease}.blur-sensitive{filter:blur(4px);transition:filter .2s ease}.blur-sensitive:hover{filter:none}.micro-interaction{transition:transform .2s ease,box-shadow .2s ease}.micro-interaction:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.15)}.tooltip{position:absolute;background:#1f2937;color:white;padding:6px 10px;border-radius:6px;font-size:13px;z-index:1000;box-shadow:0 2px 8px rgba(0,0,0,.2)}.spinner{border:2px solid #f3f3f3;border-top:2px solid #06b6d4;border-radius:50%;width:20px;height:20px;animation:spin 1s linear infinite}@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@media (min-width:640px){.sm\:p-8{padding:2rem}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:p-4{padding:1rem}.sm\:flex-row{flex-direction:row}}@media (min-width:1024px){.lg\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.lg\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}}
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-indigo-200 to-cyan-200 dark:from-gray-900 dark:to-gray-800 transition-colors duration-500">
     <div id="root"></div>
 
-    <script type="text/babel">
+    <script>
         const { useState, useEffect, useContext, createContext, useRef } = React;
         const { createRoot } = ReactDOM;
 
@@ -112,7 +38,7 @@
                 {
                     name: "PBKDF2",
                     salt,
-                    iterations: 100000,
+                    iterations: 600000,
                     hash: "SHA-256"
                 },
                 keyMaterial,
@@ -158,18 +84,36 @@
             const [showSidebar, setShowSidebar] = useState(true);
             const [masterPassword, setMasterPassword] = useState('');
             const [isAuthenticated, setIsAuthenticated] = useState(false);
+            const [sessionToken, setSessionToken] = useState(null);
             const [showTour, setShowTour] = useState(!localStorage.getItem('tourCompleted'));
+            const [lastActivity, setLastActivity] = useState(Date.now());
+            const [notification, setNotification] = useState(null);
 
             useEffect(() => {
                 document.body.classList.toggle('dark', theme === 'dark');
                 localStorage.setItem('theme', theme);
             }, [theme]);
 
+            useEffect(() => {
+                const timeout = setTimeout(() => {
+                    if (Date.now() - lastActivity > 5 * 60 * 1000) {
+                        handleLogout();
+                        setNotification({ type: 'info', message: 'Session timed out due to inactivity.' });
+                    }
+                }, 5 * 60 * 1000);
+                return () => clearTimeout(timeout);
+            }, [lastActivity]);
+
             const toggleTheme = () => {
                 setTheme(theme === 'dark' ? 'light' : 'dark');
+                setLastActivity(Date.now());
             };
 
             const handleLogin = async (password) => {
+                if (password.length < 12) {
+                    setNotification({ type: 'error', message: 'Master password must be at least 12 characters.' });
+                    return;
+                }
                 try {
                     const stored = localStorage.getItem('encryptedPasswords');
                     if (!stored) {
@@ -177,6 +121,8 @@
                         localStorage.setItem('salt', Array.from(salt).join(','));
                         setMasterPassword(password);
                         setIsAuthenticated(true);
+                        setSessionToken(crypto.getRandomValues(new Uint8Array(16)).join(''));
+                        setNotification({ type: 'success', message: 'Vault created successfully.' });
                         return;
                     }
                     const { encrypted, salt, iv } = JSON.parse(stored);
@@ -189,18 +135,25 @@
                     setPasswords(decrypted);
                     setMasterPassword(password);
                     setIsAuthenticated(true);
+                    setSessionToken(crypto.getRandomValues(new Uint8Array(16)).join(''));
+                    setNotification({ type: 'success', message: 'Vault unlocked successfully.' });
                 } catch (e) {
-                    alert("Incorrect master password");
+                    setNotification({ type: 'error', message: 'Incorrect master password.' });
                 }
+                setLastActivity(Date.now());
             };
 
             const handleLogout = () => {
                 setPasswords([]);
                 setMasterPassword('');
                 setIsAuthenticated(false);
+                setSessionToken(null);
+                setNotification({ type: 'info', message: 'Logged out successfully.' });
+                setLastActivity(Date.now());
             };
 
             const savePasswords = async (newPasswords) => {
+                if (!sessionToken) return;
                 setPasswords(newPasswords);
                 if (masterPassword) {
                     const { encrypted, salt, iv } = await encryptData(newPasswords, masterPassword);
@@ -209,6 +162,17 @@
                         salt: Array.from(salt).join(','),
                         iv: Array.from(iv).join(',')
                     }));
+                    setNotification({ type: 'success', message: 'Passwords saved successfully.' });
+                }
+                setLastActivity(Date.now());
+            };
+
+            const clearAllData = () => {
+                if (confirm('Are you sure you want to delete all vault data? This action cannot be undone.')) {
+                    localStorage.removeItem('encryptedPasswords');
+                    localStorage.removeItem('salt');
+                    handleLogout();
+                    setNotification({ type: 'info', message: 'All vault data cleared.' });
                 }
             };
 
@@ -228,6 +192,7 @@
                                 className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                 onChange={(e) => setMasterPassword(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleLogin(masterPassword)}
+                                aria-label="Master Password"
                             />
                             <button
                                 className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
@@ -235,6 +200,11 @@
                             >
                                 Unlock Vault
                             </button>
+                            {notification && (
+                                <div className={`mt-4 p-3 rounded-lg ${notification.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-cyan-100 text-cyan-700'}`}>
+                                    {notification.message}
+                                </div>
+                            )}
                         </div>
                     </div>
                 );
@@ -242,10 +212,10 @@
 
             return (
                 <ThemeContext.Provider value={{ theme, toggleTheme }}>
-                    <AuthContext.Provider value={{ savePasswords, masterPassword }}>
-                        <div className="flex h-screen">
+                    <AuthContext.Provider value={{ savePasswords, masterPassword, sessionToken }}>
+                        <div className="flex h-screen" onClick={() => setLastActivity(Date.now())}>
                             {/* Sidebar */}
-                            <div className={`fixed inset-y-0 left-0 w-64 bg-gray-800 dark:bg-gray-900 text-white p-4 sidebar ${showSidebar ? '' : 'sidebar-hidden'} glass z-50`}>
+                            <div className={`fixed inset-y-0 left-0 w-64 bg-gray-800 dark:bg-gray-900 text-white p-4 z-50 glass ${showSidebar ? '' : 'translate-x-[-100%]'} transition-transform duration-300`}>
                                 <h2 className="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-indigo-400">Password Vault</h2>
                                 <input
                                     type="text"
@@ -253,6 +223,7 @@
                                     className="w-full p-2 mb-4 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
+                                    aria-label="Search passwords"
                                 />
                                 <nav>
                                     {['vault', 'generator', 'checker', '2fa', 'dashboard'].map(tab => (
@@ -260,6 +231,7 @@
                                             key={tab}
                                             className={`w-full p-2 mb-2 rounded-lg text-left ${activeTab === tab ? 'bg-cyan-600' : 'hover:bg-gray-700'} micro-interaction`}
                                             onClick={() => setActiveTab(tab)}
+                                            aria-current={activeTab === tab ? 'page' : undefined}
                                         >
                                             <i className={`fa fa-${tab === 'vault' ? 'vault' : tab === 'generator' ? 'key' : tab === 'checker' ? 'shield' : tab === '2fa' ? 'lock' : 'chart-line'} mr-2`}></i>
                                             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -273,8 +245,15 @@
                                     <i className="fa fa-sign-out-alt mr-2"></i> Logout
                                 </button>
                                 <button
+                                    className="w-full p-2 mt-2 bg-gray-600 hover:bg-gray-700 rounded-lg micro-interaction"
+                                    onClick={clearAllData}
+                                >
+                                    <i className="fa fa-trash mr-2"></i> Clear All Data
+                                </button>
+                                <button
                                     className="absolute top-4 right-4 p-2 rounded-full bg-cyan-600 hover:bg-cyan-700 micro-interaction"
                                     onClick={() => setShowSidebar(!showSidebar)}
+                                    aria-label={showSidebar ? 'Hide sidebar' : 'Show sidebar'}
                                 >
                                     <i className={`fa ${showSidebar ? 'fa-chevron-left' : 'fa-chevron-right'}`}></i>
                                 </button>
@@ -294,6 +273,18 @@
                                 >
                                     <i className={`fa ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
                                 </button>
+                                {notification && (
+                                    <div className={`fixed bottom-4 right-4 p-3 rounded-lg ${notification.type === 'error' ? 'bg-red-100 text-red-700' : notification.type === 'success' ? 'bg-cyan-100 text-cyan-700' : 'bg-gray-100 text-gray-700'} micro-interaction`}>
+                                        {notification.message}
+                                        <button
+                                            className="ml-2 text-sm"
+                                            onClick={() => setNotification(null)}
+                                            aria-label="Close notification"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Onboarding Tour */}
@@ -301,7 +292,7 @@
                                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                     <div className="glass p-6 rounded-2xl max-w-md modal show">
                                         <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Welcome to Password Vault!</h3>
-                                        <p className="text-gray-700 dark:text-gray-200 mb-4">Explore secure password management with features like vault storage, password generation, breach checking, and 2FA setup.</p>
+                                        <p className="text-gray-700 dark:text-gray-200 mb-4">Securely manage your passwords with encrypted storage, password generation, breach checking, and 2FA setup.</p>
                                         <button
                                             className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                             onClick={() => {
@@ -309,7 +300,7 @@
                                                 setShowTour(false);
                                             }}
                                         >
-                                            Start Using
+                                            Get Started
                                         </button>
                                     </div>
                                 </div>
@@ -321,7 +312,7 @@
         };
 
         const PasswordVault = ({ passwords }) => {
-            const { savePasswords } = useContext(AuthContext);
+            const { savePasswords, sessionToken } = useContext(AuthContext);
             const [name, setName] = useState('');
             const [password, setPassword] = useState('');
             const [category, setCategory] = useState('General');
@@ -329,10 +320,17 @@
             const [editId, setEditId] = useState(null);
             const [showTooltip, setShowTooltip] = useState(false);
             const [privacyMode, setPrivacyMode] = useState(true);
+            const [showShareModal, setShowShareModal] = useState(false);
+            const [sharePassword, setSharePassword] = useState(null);
+            const [passwordHistory, setPasswordHistory] = useState(JSON.parse(localStorage.getItem('passwordHistory')) || {});
             const addButtonRef = useRef(null);
 
             const addOrEditPassword = () => {
-                if (!name || !password) return;
+                if (!sessionToken) return;
+                if (!name || !password) {
+                    setNotification({ type: 'error', message: 'Name and password are required.' });
+                    return;
+                }
                 const newPassword = {
                     id: editId || Date.now(),
                     name,
@@ -344,6 +342,12 @@
                 const updatedPasswords = editId
                     ? passwords.map(p => (p.id === editId ? newPassword : p))
                     : [...passwords, newPassword];
+                if (editId) {
+                    const history = passwordHistory[editId] || [];
+                    history.push({ password: passwords.find(p => p.id === editId).password, timestamp: new Date().toISOString() });
+                    setPasswordHistory({ ...passwordHistory, [editId]: history });
+                    localStorage.setItem('passwordHistory', JSON.stringify({ ...passwordHistory, [editId]: history }));
+                }
                 savePasswords(updatedPasswords);
                 setName('');
                 setPassword('');
@@ -353,8 +357,13 @@
             };
 
             const deletePassword = (id) => {
+                if (!sessionToken) return;
                 if (confirm("Are you sure you want to delete this password?")) {
                     savePasswords(passwords.filter(p => p.id !== id));
+                    const newHistory = { ...passwordHistory };
+                    delete newHistory[id];
+                    setPasswordHistory(newHistory);
+                    localStorage.setItem('passwordHistory', JSON.stringify(newHistory));
                 }
             };
 
@@ -367,13 +376,47 @@
             };
 
             const markUsed = (id) => {
+                if (!sessionToken) return;
                 const updatedPasswords = passwords.map(p =>
                     p.id === id ? { ...p, lastUsed: new Date().toISOString() } : p
                 );
                 savePasswords(updatedPasswords);
             };
 
+            const sharePassword = async (pwd) => {
+                if (!sessionToken) return;
+                const { encrypted, salt, iv } = await encryptData(pwd.password, masterPassword);
+                const shareData = btoa(JSON.stringify({
+                    encrypted: Array.from(encrypted),
+                    salt: Array.from(salt),
+                    iv: Array.from(iv)
+                }));
+                setSharePassword(shareData);
+                setShowShareModal(true);
+            };
+
+            const exportBackupKey = async () => {
+                if (!sessionToken) return;
+                const backupKey = crypto.getRandomValues(new Uint8Array(32)).join('');
+                const { encrypted, salt, iv } = await encryptData(passwords, backupKey);
+                const backupData = JSON.stringify({
+                    encrypted: Array.from(encrypted),
+                    salt: Array.from(salt),
+                    iv: Array.from(iv),
+                    backupKey
+                });
+                const blob = new Blob([backupData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'vault_backup.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                setNotification({ type: 'success', message: 'Backup key exported successfully.' });
+            };
+
             const exportPasswords = () => {
+                if (!sessionToken) return;
                 const data = JSON.stringify(passwords);
                 const blob = new Blob([data], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
@@ -385,11 +428,13 @@
             };
 
             const importPasswords = (e) => {
+                if (!sessionToken) return;
                 const file = e.target.files[0];
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     const imported = JSON.parse(event.target.result);
                     savePasswords([...passwords, ...imported]);
+                    setNotification({ type: 'success', message: 'Passwords imported successfully.' });
                 };
                 reader.readAsText(file);
             };
@@ -415,6 +460,7 @@
                             onClick={() => setShowModal(true)}
                             onMouseEnter={() => setShowTooltip(true)}
                             onMouseLeave={() => setShowTooltip(false)}
+                            aria-label="Add new password"
                         >
                             <i className="fa fa-plus mr-2"></i> Add Password
                         </button>
@@ -432,18 +478,27 @@
                         <button
                             className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
                             onClick={exportPasswords}
+                            aria-label="Export passwords"
                         >
                             <i className="fa fa-download mr-2"></i> Export
                         </button>
                         <label className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction cursor-pointer">
                             <i className="fa fa-upload mr-2"></i> Import
-                            <input type="file" accept=".json" onChange={importPasswords} className="hidden" />
+                            <input type="file" accept=".json" onChange={importPasswords} className="hidden" aria-label="Import passwords" />
                         </label>
                         <button
                             className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
                             onClick={() => setPrivacyMode(!privacyMode)}
+                            aria-label={privacyMode ? 'Show passwords' : 'Hide passwords'}
                         >
-                            <i className={`fa fa-${privacyMode ? 'eye-slash' : 'eye'} mr-2`}></i> {privacyMode ? 'Show' : 'Hide'} Passwords
+                            <i className={`fa fa-${privacyMode ? 'eye-slash' : 'eye'} mr-2`}></i> {privacyMode ? 'Show' : 'Hide'}
+                        </button>
+                        <button
+                            className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                            onClick={exportBackupKey}
+                            aria-label="Export backup key"
+                        >
+                            <i className="fa fa-key mr-2"></i> Backup Key
                         </button>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -461,11 +516,17 @@
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
                                         Last Used: {pwd.lastUsed ? new Date(pwd.lastUsed).toLocaleString() : 'Never'}
                                     </p>
+                                    {passwordHistory[pwd.id]?.length > 0 && (
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                            History: {passwordHistory[pwd.id].length} previous passwords
+                                        </p>
+                                    )}
                                     <div className="flex gap-2 mt-2">
                                         <button
                                             className="p-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700"
                                             onClick={() => { navigator.clipboard.writeText(pwd.password); markUsed(pwd.id); }}
                                             title="Copy Password"
+                                            aria-label="Copy password"
                                         >
                                             <i className="fa fa-copy"></i>
                                         </button>
@@ -473,6 +534,7 @@
                                             className="p-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
                                             onClick={() => editPassword(pwd)}
                                             title="Edit Password"
+                                            aria-label="Edit password"
                                         >
                                             <i className="fa fa-edit"></i>
                                         </button>
@@ -480,8 +542,17 @@
                                             className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                                             onClick={() => deletePassword(pwd.id)}
                                             title="Delete Password"
+                                            aria-label="Delete password"
                                         >
                                             <i className="fa fa-trash"></i>
+                                        </button>
+                                        <button
+                                            className="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                                            onClick={() => sharePassword(pwd)}
+                                            title="Share Password"
+                                            aria-label="Share password"
+                                        >
+                                            <i className="fa fa-share"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -498,6 +569,7 @@
                                     className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
+                                    aria-label="Password name"
                                 />
                                 <input
                                     type="password"
@@ -505,11 +577,13 @@
                                     className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                    aria-label="Password"
                                 />
                                 <select
                                     className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                     value={category}
                                     onChange={(e) => setCategory(e.target.value)}
+                                    aria-label="Password category"
                                 >
                                     <option>General</option>
                                     <option>Work</option>
@@ -520,6 +594,7 @@
                                     <button
                                         className="flex-1 p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                         onClick={addOrEditPassword}
+                                        aria-label={editId ? 'Update password' : 'Save password'}
                                     >
                                         {editId ? 'Update' : 'Save'}
                                     </button>
@@ -532,8 +607,40 @@
                                             setEditId(null);
                                             setShowModal(false);
                                         }}
+                                        aria-label="Cancel"
                                     >
                                         Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {showShareModal && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="glass p-6 rounded-2xl max-w-md w-full modal show">
+                                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Share Password</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Share this encrypted link with the recipient. They must know the master password to decrypt it.</p>
+                                <input
+                                    type="text"
+                                    value={sharePassword}
+                                    readOnly
+                                    className="w-full p-3 mb-4 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                    aria-label="Encrypted share link"
+                                />
+                                <div className="flex gap-2">
+                                    <button
+                                        className="flex-1 p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
+                                        onClick={() => navigator.clipboard.writeText(sharePassword)}
+                                        aria-label="Copy share link"
+                                    >
+                                        Copy Link
+                                    </button>
+                                    <button
+                                        className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
+                                        onClick={() => setShowShareModal(false)}
+                                        aria-label="Close"
+                                    >
+                                        Close
                                     </button>
                                 </div>
                             </div>
@@ -544,7 +651,7 @@
         };
 
         const PasswordGenerator = () => {
-            const { savePasswords, masterPassword } = useContext(AuthContext);
+            const { savePasswords, masterPassword, sessionToken } = useContext(AuthContext);
             const [length, setLength] = useState(12);
             const [options, setOptions] = useState({
                 uppercase: true,
@@ -561,6 +668,7 @@
             const qrRef = useRef(null);
 
             const generatePassword = async () => {
+                if (!sessionToken) return;
                 if (options.passphrase) {
                     const words = ['apple', 'blue', 'cat', 'dog', 'echo', 'fox', 'green', 'house', 'ice', 'jump'];
                     let passphrase = '';
@@ -583,7 +691,7 @@
                 if (options.symbols) chars += symbols;
 
                 if (!chars) {
-                    alert('Please select at least one character type.');
+                    setNotification({ type: 'error', message: 'Please select at least one character type.' });
                     return;
                 }
 
@@ -598,7 +706,7 @@
             };
 
             const generateQR = () => {
-                if (!password) return;
+                if (!sessionToken || !password) return;
                 qrRef.current.innerHTML = '';
                 new QRCode(qrRef.current, {
                     text: password,
@@ -611,8 +719,19 @@
                 setShowQRModal(true);
             };
 
-            const saveToVault = () => {
-                if (!password) return;
+            const saveToVault = async () => {
+                if (!sessionToken || !password) return;
+                const stored = localStorage.getItem('encryptedPasswords');
+                let currentPasswords = [];
+                if (stored) {
+                    const { encrypted, salt, iv } = JSON.parse(stored);
+                    currentPasswords = await decryptData(
+                        new Uint8Array(encrypted),
+                        new Uint8Array(salt.split(',').map(Number)),
+                        new Uint8Array(iv.split(',').map(Number)),
+                        masterPassword
+                    );
+                }
                 const newPassword = {
                     id: Date.now(),
                     name: `Generated-${new Date().toLocaleDateString()}`,
@@ -621,12 +740,8 @@
                     createdAt: new Date().toISOString(),
                     expiresAt: new Date(Date.now() + expirationDays * 24 * 60 * 60 * 1000).toISOString()
                 };
-                savePasswords([...JSON.parse(localStorage.getItem('encryptedPasswords') ? await decryptData(
-                    new Uint8Array(JSON.parse(localStorage.getItem('encryptedPasswords')).encrypted),
-                    new Uint8Array(JSON.parse(localStorage.getItem('encryptedPasswords')).salt.split(',').map(Number)),
-                    new Uint8Array(JSON.parse(localStorage.getItem('encryptedPasswords')).iv.split(',').map(Number)),
-                    masterPassword
-                ) : '[]'), newPassword]);
+                savePasswords([...currentPasswords, newPassword]);
+                setNotification({ type: 'success', message: 'Password saved to vault.' });
             };
 
             return (
@@ -645,6 +760,7 @@
                                 onChange={(e) => setLength(e.target.value)}
                                 className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg cursor-pointer accent-cyan-500"
                                 disabled={options.passphrase}
+                                aria-label="Password length"
                             />
                         </div>
                         <div className="space-y-2">
@@ -656,6 +772,7 @@
                                         onChange={() => setOptions({ ...options, [key]: !options[key], ...(key === 'passphrase' ? { uppercase: false, lowercase: false, numbers: false, symbols: false } : {}) })}
                                         className="h-4 w-4 text-cyan-600 focus:ring-cyan-500"
                                         disabled={key !== 'passphrase' && options.passphrase}
+                                        aria-label={key}
                                     />
                                     <span className="ml-2 text-sm text-gray-700 dark:text-gray-200">
                                         {key === 'passphrase' ? 'Memorable Passphrase' : key.charAt(0).toUpperCase() + key.slice(1)}
@@ -674,6 +791,7 @@
                                 value={expirationDays}
                                 onChange={(e) => setExpirationDays(e.target.value)}
                                 className="w-full p-3 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                aria-label="Expiration days"
                             />
                         </div>
                         <div className="flex items-center gap-2">
@@ -682,11 +800,13 @@
                                 value={password}
                                 readOnly
                                 className="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                aria-label="Generated password"
                             />
                             <button
                                 className="p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                 onClick={() => navigator.clipboard.writeText(password)}
                                 title="Copy Password"
+                                aria-label="Copy password"
                             >
                                 <i className="fa fa-copy"></i>
                             </button>
@@ -694,6 +814,7 @@
                                 className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
                                 onClick={generateQR}
                                 title="Generate QR Code"
+                                aria-label="Generate QR code"
                             >
                                 <i className="fa fa-qrcode"></i>
                             </button>
@@ -701,6 +822,7 @@
                                 className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
                                 onClick={saveToVault}
                                 title="Save to Vault"
+                                aria-label="Save to vault"
                             >
                                 <i className="fa fa-save"></i>
                             </button>
@@ -711,6 +833,7 @@
                             onClick={generatePassword}
                             onMouseEnter={() => setShowTooltip(true)}
                             onMouseLeave={() => setShowTooltip(false)}
+                            aria-label="Generate password"
                         >
                             Generate Password
                         </button>
@@ -734,6 +857,7 @@
                                 <button
                                     className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                     onClick={() => setShowQRModal(false)}
+                                    aria-label="Close QR modal"
                                 >
                                     Close
                                 </button>
@@ -745,6 +869,7 @@
         };
 
         const PasswordChecker = () => {
+            const { sessionToken } = useContext(AuthContext);
             const [password, setPassword] = useState('');
             const [strength, setStrength] = useState({ score: 0, text: '', entropy: 0 });
             const [breach, setBreach] = useState({ breached: false, count: 0, checked: false });
@@ -771,7 +896,7 @@
             };
 
             const checkBreach = async () => {
-                if (!password) {
+                if (!sessionToken || !password) {
                     setBreach({ breached: false, count: 0, checked: true });
                     return;
                 }
@@ -790,13 +915,16 @@
                         if (hashSuffix === suffix) {
                             setBreach({ breached: true, count: parseInt(count), checked: true });
                             setIsChecking(false);
+                            setNotification({ type: 'error', message: `Password found in ${count} breaches!` });
                             return;
                         }
                     }
                     setBreach({ breached: false, count: 0, checked: true });
+                    setNotification({ type: 'success', message: 'No breaches found.' });
                 } catch (error) {
                     console.error('Error checking breach:', error);
                     setBreach({ breached: false, count: 0, checked: true });
+                    setNotification({ type: 'error', message: 'Failed to check breaches.' });
                 }
                 setIsChecking(false);
             };
@@ -816,10 +944,12 @@
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && checkBreach()}
+                            aria-label="Password to check"
                         />
                         <button
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
                             onClick={() => setShowPassword(!showPassword)}
+                            aria-label={showPassword ? 'Hide password' : 'Show password'}
                         >
                             <i className={`fa ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
                         </button>
@@ -828,6 +958,7 @@
                         className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction flex items-center justify-center"
                         onClick={checkBreach}
                         disabled={isChecking}
+                        aria-label="Check password for breaches"
                     >
                         {isChecking ? (
                             <span className="flex items-center">
@@ -856,12 +987,14 @@
         };
 
         const TwoFactorAuth = () => {
+            const { sessionToken } = useContext(AuthContext);
             const [secret, setSecret] = useState('');
             const [serviceName, setServiceName] = useState('');
             const [showQRModal, setShowQRModal] = useState(false);
             const qrRef = useRef(null);
 
             const generate2FASecret = () => {
+                if (!sessionToken) return;
                 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
                 let newSecret = '';
                 const array = new Uint32Array(16);
@@ -874,8 +1007,8 @@
             };
 
             const generateQR = () => {
-                if (!secret || !serviceName) {
-                    alert('Please enter a service name and generate a secret.');
+                if (!sessionToken || !secret || !serviceName) {
+                    setNotification({ type: 'error', message: 'Please enter a service name and generate a secret.' });
                     return;
                 }
                 qrRef.current.innerHTML = '';
@@ -901,6 +1034,7 @@
                             className="w-full p-3 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                             value={serviceName}
                             onChange={(e) => setServiceName(e.target.value)}
+                            aria-label="Service name"
                         />
                         <div className="flex items-center gap-2">
                             <input
@@ -909,11 +1043,13 @@
                                 readOnly
                                 className="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                 placeholder="Generate a 2FA secret"
+                                aria-label="2FA secret"
                             />
                             <button
                                 className="p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                 onClick={() => navigator.clipboard.writeText(secret)}
                                 title="Copy Secret"
+                                aria-label="Copy 2FA secret"
                             >
                                 <i className="fa fa-copy"></i>
                             </button>
@@ -922,12 +1058,14 @@
                             <button
                                 className="flex-1 p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                 onClick={generate2FASecret}
+                                aria-label="Generate 2FA secret"
                             >
                                 Generate Secret
                             </button>
                             <button
                                 className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
                                 onClick={generateQR}
+                                aria-label="Show QR code"
                             >
                                 Show QR Code
                             </button>
@@ -942,6 +1080,7 @@
                                 <button
                                     className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                     onClick={() => setShowQRModal(false)}
+                                    aria-label="Close QR modal"
                                 >
                                     Close
                                 </button>
