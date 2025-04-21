@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Password Vault</title>
 
-    <!-- Google Fonts: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
-
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
@@ -25,211 +22,10 @@
     <script src="https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js" onerror="this.onerror=null; this.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'"></script>
 
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-        }
-        .min-h-screen { min-height: 100vh; }
-        .bg-gradient-to-br { background-image: linear-gradient(to bottom right, #a5b4fc, #d8b4fe); }
-        .dark\:bg-gradient-to-br { background-image: linear-gradient(to bottom right, #1f2937, #4b5563); }
-        .transition-colors { transition-property: color, background-color, border-color, outline-color; transition-duration: .5s; }
-        .flex { display: flex; }
-        .h-screen { height: 100vh; }
-        .fixed { position: fixed; }
-        .inset-y-0 { top: 0; bottom: 0; }
-        .left-0 { left: 0; }
-        .w-64 { width: 16rem; }
-        .bg-gray-800 { --tw-bg-opacity: 1; background-color: rgb(31 41 55 / var(--tw-bg-opacity)); }
-        .dark\:bg-gray-900 { background-color: rgb(17 24 39 / var(--tw-bg-opacity)); }
-        .text-white { --tw-text-opacity: 1; color: rgb(255 255 255 / var(--tw-text-opacity)); }
-        .p-4 { padding: 1rem; }
-        .z-50 { z-index: 50; }
-        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
-        .font-bold { font-weight: 700; }
-        .mb-6 { margin-bottom: 1.5rem; }
-        .bg-clip-text { background-clip: text; }
-        .text-transparent { color: transparent; }
-        .bg-gradient-to-r { background-image: linear-gradient(to right, #22d3ee, #a855f7); }
-        .w-full { width: 100%; }
-        .p-3 { padding: .75rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .bg-gray-700 { --tw-bg-opacity: 1; background-color: rgb(55 65 81 / var(--tw-bg-opacity)); }
-        .rounded-lg { border-radius: .5rem; }
-        .focus\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
-        .focus\:ring-2:focus { --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000); }
-        .focus\:ring-purple-500:focus { --tw-ring-opacity: 1; --tw-ring-color: rgb(168 85 247 / var(--tw-ring-opacity)); }
-        .mb-2 { margin-bottom: .5rem; }
-        .hover\:bg-gray-700:hover { --tw-bg-opacity: 1; background-color: rgb(55 65 81 / var(--tw-bg-opacity)); }
-        .text-left { text-align: left; }
-        .absolute { position: absolute; }
-        .top-4 { top: 1rem; }
-        .right-4 { right: 1rem; }
-        .rounded-full { border-radius: 9999px; }
-        .bg-purple-600 { --tw-bg-opacity: 1; background-color: rgb(147 51 234 / var(--tw-bg-opacity)); }
-        .hover\:bg-purple-700:hover { --tw-bg-opacity: 1; background-color: rgb(126 34 206 / var(--tw-bg-opacity)); }
-        .flex-1 { flex: 1 1 0%; }
-        .p-8 { padding: 2rem; }
-        .ml-64 { margin-left: 16rem; }
-        .ml-0 { margin-left: 0; }
-        .transition-all { transition-property: all; transition-timing-function: cubic-bezier(.4,0,.2,1); transition-duration: .3s; }
-        .bg-cyan-600 { --tw-bg-opacity: 1; background-color: rgb(8 145 178 / var(--tw-bg-opacity)); }
-        .dark\:bg-purple-600 { background-color: rgb(147 51 234 / var(--tw-bg-opacity)); }
-        .hover\:bg-cyan-700:hover { --tw-bg-opacity: 1; background-color: rgb(6 182 212 / var(--tw-bg-opacity)); }
-        .dark\:hover\:bg-purple-700:hover { background-color: rgb(126 34 206 / var(--tw-bg-opacity)); }
-        .glass {
-            background: rgba(255,255,255,.1);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,.3);
-            box-shadow: 0 8px 32px rgba(0,0,0,.1);
-        }
-        .dark .glass { background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.2); }
-        .rounded-3xl { border-radius: 1.5rem; }
-        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
-        .text-gray-900 { --tw-text-opacity: 1; color: rgb(17 24 39 / var(--tw-text-opacity)); }
-        .dark\:text-white { color: rgb(255 255 255 / var(--tw-text-opacity)); }
-        .hover\:bg-gray-600:hover { --tw-bg-opacity: 1; background-color: rgb(75 85 99 / var(--tw-bg-opacity)); }
-        .ml-2 { margin-left: .5rem; }
-        .cursor-pointer { cursor: pointer; }
-        .hidden { display: none; }
-        .grid { display: grid; }
-        .grid-cols-1 { grid-template-columns: repeat(1,minmax(0,1fr)); }
-        .gap-4 { gap: 1rem; }
-        .bg-gray-50 { --tw-bg-opacity: 1; background-color: rgb(249 250 251 / var(--tw-bg-opacity)); }
-        .dark\:bg-gray-700 { background-color: rgb(55 65 81 / var(--tw-bg-opacity)); }
-        .font-semibold { font-weight: 600; }
-        .text-sm { font-size: .875rem; line-height: 1.25rem; }
-        .text-gray-600 { --tw-text-opacity: 1; color: rgb(75 85 99 / var(--tw-text-opacity)); }
-        .dark\:text-gray-300 { color: rgb(209 213 219 / var(--tw-text-opacity)); }
-        .mt-4 { margin-top: 1rem; }
-        .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-        .bg-black { --tw-bg-opacity: 1; background-color: rgb(0 0 0 / var(--tw-bg-opacity)); }
-        .bg-opacity-50 { --tw-bg-opacity: 0.5; }
-        .items-center { align-items: center; }
-        .justify-center { justify-content: center; }
-        .p-6 { padding: 1.5rem; }
-        .max-w-md { max-width: 28rem; }
-        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .flex-row { flex-direction: row; }
-        .gap-2 { gap: .5rem; }
-        .text-gray-700 { --tw-text-opacity: 1; color: rgb(55 65 81 / var(--tw-text-opacity)); }
-        .dark\:text-gray-200 { color: rgb(229 231 235 / var(--tw-text-opacity)); }
-        .h-2 { height: .5rem; }
-        .bg-gray-200 { --tw-bg-opacity: 1; background-color: rgb(229 231 235 / var(--tw-bg-opacity)); }
-        .dark\:bg-gray-600 { background-color: rgb(75 85 99 / var(--tw-bg-opacity)); }
-        .accent-purple-500 { accent-color: #9333ea; }
-        .space-y-4 > :not([hidden]) ~ :not([hidden]) { --tw-space-y-reverse: 0; margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse))); margin-bottom: calc(1rem * var(--tw-space-y-reverse)); }
-        .space-y-2 > :not([hidden]) ~ :not([hidden]) { --tw-space-y-reverse: 0; margin-top: calc(.5rem * calc(1 - var(--tw-space-y-reverse))); margin-bottom: calc(.5rem * var(--tw-space-y-reverse)); }
-        .h-4 { height: 1rem; }
-        .w-4 { width: 1rem; }
-        .text-purple-600 { --tw-text-opacity: 1; color: rgb(147 51 234 / var(--tw-text-opacity)); }
-        .focus\:ring-purple-500:focus { --tw-ring-color: rgb(168 85 247 / var(--tw-ring-opacity)); }
-        .mt-2 { margin-top: .5rem; }
-        .text-red-600 { --tw-text-opacity: 1; color: rgb(220 38 38 / var(--tw-text-opacity)); }
-        .dark\:text-red-400 { color: rgb(248 113 113 / var(--tw-text-opacity)); }
-        .relative { position: relative; }
-        .right-3 { right: .75rem; }
-        .top-1\/2 { top: 50%; }
-        .text-gray-500 { --tw-text-opacity: 1; color: rgb(107 114 128 / var(--tw-text-opacity)); }
-        .dark\:text-gray-100 { color: rgb(243 244 246 / var(--tw-text-opacity)); }
-        .hover\:text-gray-700:hover { --tw-text-opacity: 1; color: rgb(55 65 81 / var(--tw-text-opacity)); }
-        .dark\:hover\:text-gray-100:hover { color: rgb(243 244 246 / var(--tw-text-opacity)); }
-        .bg-yellow-600 { --tw-bg-opacity: 1; background-color: rgb(202 138 4 / var(--tw-bg-opacity)); }
-        .hover\:bg-yellow-700:hover { --tw-bg-opacity: 1; background-color: rgb(161 98 7 / var(--tw-bg-opacity)); }
-        .bg-red-600 { --tw-bg-opacity: 1; background-color: rgb(220 38 38 / var(--tw-bg-opacity)); }
-        .hover\:bg-red-700:hover { --tw-bg-opacity: 1; background-color: rgb(185 28 28 / var(--tw-bg-opacity)); }
-        .text-purple-400 { --tw-text-opacity: 1; color: rgb(192 132 252 / var(--tw-text-opacity)); }
-        .dark\:text-purple-400 { color: rgb(192 132 252 / var(--tw-text-opacity)); }
-        .modal {
-            transition: opacity .3s ease, transform .3s ease;
-            transform: scale(.9);
-            opacity: 0;
-        }
-        .modal.show {
-            transform: scale(1);
-            opacity: 1;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        .strength-bar {
-            height: 10px;
-            border-radius: 5px;
-            transition: width .4s ease, background-color .4s ease;
-        }
-        .blur-sensitive {
-            filter: blur(4px);
-            transition: filter .2s ease;
-        }
-        .blur-sensitive:hover { filter: none; }
-        .micro-interaction {
-            transition: transform .2s ease, box-shadow .2s ease;
-        }
-        .micro-interaction:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,.15);
-        }
-        .tooltip {
-            position: absolute;
-            background: #1f2937;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 13px;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0,0,0,.2);
-        }
-        .spinner {
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #9333ea;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        .fab {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 60px;
-            height: 60px;
-            background-image: linear-gradient(to right, #22d3ee, #a855f7);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 16px rgba(0,0,0,.3);
-            transition: transform .2s ease;
-        }
-        .fab:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(0,0,0,.4);
-        }
-        .highlight-search {
-            background-color: rgba(250, 204, 21, 0.2);
-            border-radius: 4px;
-            padding: 2px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        @media (min-width: 640px) {
-            .sm\:p-8 { padding: 2rem; }
-            .sm\:grid-cols-2 { grid-template-columns: repeat(2,minmax(0,1fr)); }
-            .sm\:p-4 { padding: 1rem; }
-            .sm\:flex-row { flex-direction: row; }
-        }
-        @media (min-width: 1024px) {
-            .lg\:grid-cols-3 { grid-template-columns: repeat(3,minmax(0,1fr)); }
-            .lg\:grid-cols-4 { grid-template-columns: repeat(4,minmax(0,1fr)); }
-        }
+        body{font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;margin:0}.min-h-screen{min-height:100vh}.bg-gradient-to-br{background-image:linear-gradient(to bottom right,#c7d2fe,#a5b4fc)}.dark\:bg-gradient-to-br{background-image:linear-gradient(to bottom right,#111827,#1f2937)}.transition-colors{transition-property:color,background-color,border-color,outline-color,transition-duration:.5s}.flex{display:flex}.h-screen{height:100vh}.fixed{position:fixed}.inset-y-0{top:0;bottom:0}.left-0{left:0}.w-64{width:16rem}.bg-gray-800{--tw-bg-opacity:1;background-color:rgb(31 41 55 / var(--tw-bg-opacity))}.dark\:bg-gray-900{background-color:rgb(17 24 39 / var(--tw-bg-opacity))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity))}.p-4{padding:1rem}.z-50{z-index:50}.text-2xl{font-size:1.5rem;line-height:2rem}.font-bold{font-weight:700}.mb-6{margin-bottom:1.5rem}.bg-clip-text{background-clip:text}.text-transparent{color:transparent}.bg-gradient-to-r{background-image:linear-gradient(to right,#22d3ee,#4f46e5)}.w-full{width:100%}.p-2{padding:.5rem}.mb-4{margin-bottom:1rem}.bg-gray-700{--tw-bg-opacity:1;background-color:rgb(55 65 81 / var(--tw-bg-opacity))}.rounded-lg{border-radius:.5rem}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow, 0 0 #0000)}.focus\:ring-cyan-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(6 182 212 / var(--tw-ring-opacity))}.mb-2{margin-bottom:.5rem}.hover\:bg-gray-700:hover{--tw-bg-opacity:1;background-color:rgb(55 65 81 / var(--tw-bg-opacity))}.text-left{text-align:left}.absolute{position:absolute}.top-4{top:1rem}.right-4{right:1rem}.rounded-full{border-radius:9999px}.bg-cyan-600{--tw-bg-opacity:1;background-color:rgb(8 145 178 / var(--tw-bg-opacity))}.hover\:bg-cyan-700:hover{--tw-bg-opacity:1;background-color:rgb(6 182 212 / var(--tw-bg-opacity))}.flex-1{flex:1 1 0%}.p-8{padding:2rem}.ml-64{margin-left:16rem}.ml-0{margin-left:0}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.3s}.bg-indigo-600{--tw-bg-opacity:1;background-color:rgb(79 70 229 / var(--tw-bg-opacity))}.dark\:bg-cyan-600{background-color:rgb(8 145 178 / var(--tw-bg-opacity))}.hover\:bg-indigo-700:hover{--tw-bg-opacity:1;background-color:rgb(67 56 202 / var(--tw-bg-opacity))}.dark\:hover\:bg-cyan-700:hover{background-color:rgb(6 182 212 / var(--tw-bg-opacity))}.glass{background:rgba(255,255,255,.15);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.25);box-shadow:0 4px 30px rgba(0,0,0,.1)}.dark .glass{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15)}.rounded-3xl{border-radius:1.5rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-gray-900{--tw-text-opacity:1;color:rgb(17 24 39 / var(--tw-text-opacity))}.dark\:text-white{color:rgb(255 255 255 / var(--tw-text-opacity))}.p-3{padding:.75rem}.hover\:bg-gray-600:hover{--tw-bg-opacity:1;background-color:rgb(75 85 99 / var(--tw-bg-opacity))}.ml-2{margin-left:.5rem}.cursor-pointer{cursor:pointer}.hidden{display:none}.grid{display:grid}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.gap-4{gap:1rem}.bg-gray-50{--tw-bg-opacity:1;background-color:rgb(249 250 251 / var(--tw-bg-opacity))}.dark\:bg-gray-700{background-color:rgb(55 65 81 / var(--tw-bg-opacity))}.font-semibold{font-weight:600}.text-sm{font-size:.875rem;line-height:1.25rem}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity))}.dark\:text-gray-300{color:rgb(209 213 219 / var(--tw-text-opacity))}.mt-4{margin-top:1rem}.inset-0{top:0;right:0;bottom:0;left:0}.bg-black{--tw-bg-opacity:1;background-color:rgb(0 0 0 / var(--tw-bg-opacity))}.bg-opacity-50{--tw-bg-opacity:0.5}.items-center{align-items:center}.justify-center{justify-content:center}.p-6{padding:1.5rem}.max-w-md{max-width:28rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.mb-4{margin-bottom:1rem}.flex-row{flex-direction:row}.gap-2{gap:.5rem}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity))}.dark\:text-gray-200{color:rgb(229 231 235 / var(--tw-text-opacity))}.h-2{height:.5rem}.bg-gray-200{--tw-bg-opacity:1;background-color:rgb(229 231 235 / var(--tw-bg-opacity))}.dark\:bg-gray-600{background-color:rgb(75 85 99 / var(--tw-bg-opacity))}.accent-cyan-500{accent-color:#06b6d4}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem * var(--tw-space-y-reverse))}.h-4{height:1rem}.w-4{width:1rem}.text-cyan-600{--tw-text-opacity:1;color:rgb(8 145 178 / var(--tw-text-opacity))}.focus\:ring-cyan-500:focus{--tw-ring-color:rgb(6 182 212 / var(--tw-ring-opacity))}.mt-2{margin-top:.5rem}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity))}.dark\:text-red-400{color:rgb(248 113 113 / var(--tw-text-opacity))}.relative{position:relative}.right-3{right:.75rem}.top-1\/2{top:50%}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity))}.dark\:text-gray-100{color:rgb(243 244 246 / var(--tw-text-opacity))}.hover\:text-gray-700:hover{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity))}.dark\:hover\:text-gray-100:hover{color:rgb(243 244 246 / var(--tw-text-opacity))}.bg-yellow-600{--tw-bg-opacity:1;background-color:rgb(202 138 4 / var(--tw-bg-opacity))}.hover\:bg-yellow-700:hover{--tw-bg-opacity:1;background-color:rgb(161 98 7 / var(--tw-bg-opacity))}.bg-red-600{--tw-bg-opacity:1;background-color:rgb(220 38 38 / var(--tw-bg-opacity))}.hover\:bg-red-700:hover{--tw-bg-opacity:1;background-color:rgb(185 28 28 / var(--tw-bg-opacity))}.text-cyan-400{--tw-text-opacity:1;color:rgb(34 211 238 / var(--tw-text-opacity))}.dark\:text-cyan-400{color:rgb(34 211 238 / var(--tw-text-opacity))}.modal{transition:opacity .3s ease,transform .3s ease;transform:scale(.9);opacity:0}.modal.show{transform:scale(1);opacity:1}.strength-bar{height:10px;border-radius:5px;transition:width .4s ease,background-color .4s ease}.blur-sensitive{filter:blur(4px);transition:filter .2s ease}.blur-sensitive:hover{filter:none}.micro-interaction{transition:transform .2s ease,box-shadow .2s ease}.micro-interaction:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.15)}.tooltip{position:absolute;background:#1f2937;color:white;padding:6px 10px;border-radius:6px;font-size:13px;z-index:1000;box-shadow:0 2px 8px rgba(0,0,0,.2)}.spinner{border:2px solid #f3f3f3;border-top:2px solid #06b6d4;border-radius:50%;width:20px;height:20px;animation:spin 1s linear infinite}@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@media (min-width:640px){.sm\:p-8{padding:2rem}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:p-4{padding:1rem}.sm\:flex-row{flex-direction:row}}@media (min-width:1024px){.lg\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.lg\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}}
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-cyan-200 to-purple-200 dark:from-gray-900 dark:to-gray-800 transition-colors duration-500">
+<body class="min-h-screen bg-gradient-to-br from-indigo-200 to-cyan-200 dark:from-gray-900 dark:to-gray-800 transition-colors duration-500">
     <div id="root"></div>
     <div id="fallback" style="display: none; text-align: center; padding: 20px; color: white;">
         <h2>Error Loading Application</h2>
@@ -237,6 +33,7 @@
     </div>
 
     <script type="text/babel">
+        // Enhanced error handling for script loading
         window.addEventListener('error', (e) => {
             if (e.target.tagName === 'SCRIPT') {
                 console.error(`Failed to load script: ${e.target.src}`);
@@ -245,6 +42,7 @@
             }
         });
 
+        // Log script load success for debugging
         const scripts = document.querySelectorAll('script[src]');
         scripts.forEach(script => {
             script.addEventListener('load', () => {
@@ -255,6 +53,7 @@
             });
         });
 
+        // Check for Web Crypto API support
         if (!window.crypto || !window.crypto.subtle) {
             console.error('Web Crypto API not supported in this browser.');
             document.getElementById('root').style.display = 'none';
@@ -262,7 +61,9 @@
             document.getElementById('fallback').innerHTML += '<p>Your browser does not support the Web Crypto API required for this application.</p>';
         }
 
+        // Custom TOTP Generator
         function generateTOTP(secret, timestamp = Math.floor(Date.now() / 1000)) {
+            // Decode base32 secret
             const base32chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
             let key = '';
             secret = secret.toUpperCase().replace(/\s/g, '');
@@ -277,6 +78,7 @@
                 keyBytes.push(parseInt(key.slice(i, i + 8), 2));
             }
 
+            // Generate HMAC-SHA1
             const time = Math.floor(timestamp / 30);
             const timeBytes = new Array(8).fill(0);
             timeBytes[4] = (time >> 24) & 0xFF;
@@ -287,12 +89,14 @@
             hmac.update(timeBytes);
             const hash = hmac.array();
 
+            // Dynamic truncation
             const offset = hash[hash.length - 1] & 0xF;
             const binary = ((hash[offset] & 0x7F) << 24) |
                           ((hash[offset + 1] & 0xFF) << 16) |
                           ((hash[offset + 2] & 0xFF) << 8) |
                           (hash[offset + 3] & 0xFF);
 
+            // Generate 6-digit code
             const code = (binary % 1000000).toString().padStart(6, '0');
             return code;
         }
@@ -303,6 +107,7 @@
         const ThemeContext = createContext();
         const AuthContext = createContext();
 
+        // Encryption utilities
         const deriveKey = async (password, salt) => {
             const enc = new TextEncoder();
             const keyMaterial = await crypto.subtle.importKey(
@@ -364,7 +169,6 @@
             const [isAuthenticated, setIsAuthenticated] = useState(false);
             const [sessionToken, setSessionToken] = useState(null);
             const [showTour, setShowTour] = useState(!localStorage.getItem('tourCompleted'));
-            const [tourStep, setTourStep] = useState(0);
             const [lastActivity, setLastActivity] = useState(Date.now());
             const [notification, setNotification] = useState(null);
 
@@ -423,14 +227,12 @@
             };
 
             const handleLogout = () => {
-                if (window.confirm('Logging out will lock the vault. Ensure you remember your master password, as it cannot be recovered!')) {
-                    setPasswords([]);
-                    setMasterPassword('');
-                    setIsAuthenticated(false);
-                    setSessionToken(null);
-                    setNotification({ type: 'info', message: 'Logged out successfully.' });
-                    setLastActivity(Date.now());
-                }
+                setPasswords([]);
+                setMasterPassword('');
+                setIsAuthenticated(false);
+                setSessionToken(null);
+                setNotification({ type: 'info', message: 'Logged out successfully.' });
+                setLastActivity(Date.now());
             };
 
             const savePasswords = async (newPasswords) => {
@@ -440,7 +242,7 @@
                     const { encrypted, salt, iv } = await encryptData(newPasswords, masterPassword);
                     localStorage.setItem('encryptedPasswords', JSON.stringify({
                         encrypted: Array.from(encrypted),
-                        saltدا: Array.from(salt).join(','),
+                        salt: Array.from(salt).join(','),
                         iv: Array.from(iv).join(',')
                     }));
                     setNotification({ type: 'success', message: 'Passwords saved successfully.' });
@@ -466,34 +268,24 @@
             if (!isAuthenticated) {
                 return (
                     <div className="min-h-screen flex items-center justify-center p-4">
-                        <div className="glass p-8 rounded-3xl max-w-md w-full relative">
-                            <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white text-center">Password Vault Login</h2>
-                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 text-center">
-                                The master password is your key to the vault. Keep it secure and never forget it, as it cannot be recovered!
-                            </p>
-                            <div className="relative">
-                                <input
-                                    type="password"
-                                    placeholder="Enter your master password"
-                                    className="w-full p-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 text-lg"
-                                    onChange={(e) => setMasterPassword(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && handleLogin(masterPassword)}
-                                    aria-label="Master Password"
-                                    onMouseEnter={() => document.getElementById('master-password-tooltip').classList.remove('hidden')}
-                                    onMouseLeave={() => document.getElementById('master-password-tooltip').classList.add('hidden')}
-                                />
-                                <div id="master-password-tooltip" className="tooltip hidden top-full mt-2 left-0">
-                                    This is your master key to unlock all passwords. It cannot be recovered if lost!
-                                </div>
-                            </div>
+                        <div className="glass p-8 rounded-3xl max-w-md w-full">
+                            <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white text-center">Password Vault Login</h2>
+                            <input
+                                type="password"
+                                placeholder="Enter Master Password"
+                                className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                onChange={(e) => setMasterPassword(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && handleLogin(masterPassword)}
+                                aria-label="Master Password"
+                            />
                             <button
-                                className="w-full p-4 mt-4 bg-purple-600 text-white rounded-xl hover:bg-purple-700 micro-interaction text-lg"
+                                className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                 onClick={() => handleLogin(masterPassword)}
                             >
                                 Unlock Vault
                             </button>
                             {notification && (
-                                <div className={`mt-4 p-3 rounded-lg ${notification.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-purple-100 text-purple-700'}`}>
+                                <div className={`mt-4 p-3 rounded-lg ${notification.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-cyan-100 text-cyan-700'}`}>
                                     {notification.message}
                                 </div>
                             )}
@@ -506,12 +298,13 @@
                 <ThemeContext.Provider value={{ theme, toggleTheme }}>
                     <AuthContext.Provider value={{ savePasswords, masterPassword, sessionToken }}>
                         <div className="flex h-screen" onClick={() => setLastActivity(Date.now())}>
+                            {/* Sidebar */}
                             <div className={`fixed inset-y-0 left-0 w-64 bg-gray-800 dark:bg-gray-900 text-white p-4 z-50 glass ${showSidebar ? '' : 'translate-x-[-100%]'} transition-transform duration-300`}>
-                                <h2 className="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-400">Password Vault</h2>
+                                <h2 className="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-indigo-400">Password Vault</h2>
                                 <input
                                     type="text"
                                     placeholder="Search passwords..."
-                                    className="w-full p-3 mb-4 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
+                                    className="w-full p-2 mb-4 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     aria-label="Search passwords"
@@ -520,7 +313,7 @@
                                     {['vault', 'generator', 'checker', '2fa', 'dashboard'].map(tab => (
                                         <button
                                             key={tab}
-                                            className={`w-full p-3 mb-2 rounded-lg text-left ${activeTab === tab ? 'bg-purple-600' : 'hover:bg-gray-700'} micro-interaction text-lg`}
+                                            className={`w-full p-2 mb-2 rounded-lg text-left ${activeTab === tab ? 'bg-cyan-600' : 'hover:bg-gray-700'} micro-interaction`}
                                             onClick={() => setActiveTab(tab)}
                                             aria-current={activeTab === tab ? 'page' : undefined}
                                         >
@@ -530,48 +323,42 @@
                                     ))}
                                 </nav>
                                 <button
-                                    className="w-full p-3 mt-4 bg-red-600 hover:bg-red-700 rounded-lg micro-interaction text-lg"
+                                    className="w-full p-2 mt-4 bg-red-600 hover:bg-red-700 rounded-lg micro-interaction"
                                     onClick={handleLogout}
                                 >
                                     <i className="fa fa-sign-out-alt mr-2"></i> Logout
                                 </button>
                                 <button
-                                    className="w-full p-3 mt-2 bg-gray-600 hover:bg-gray-700 rounded-lg micro-interaction text-lg"
+                                    className="w-full p-2 mt-2 bg-gray-600 hover:bg-gray-700 rounded-lg micro-interaction"
                                     onClick={clearAllData}
                                 >
                                     <i className="fa fa-trash mr-2"></i> Clear All Data
                                 </button>
-                                <div className="relative">
-                                    <button
-                                        className="absolute top-4 right-4 p-3 rounded-full bg-purple-600 hover:bg-purple-700 micro-interaction"
-                                        onClick={() => setShowSidebar(!showSidebar)}
-                                        aria-label={showSidebar ? 'Hide sidebar' : 'Show sidebar'}
-                                        onMouseEnter={() => document.getElementById('sidebar-tooltip').classList.remove('hidden')}
-                                        onMouseLeave={() => document.getElementById('sidebar-tooltip').classList.add('hidden')}
-                                    >
-                                        <i className={`fa ${showSidebar ? 'fa-chevron-left' : 'fa-chevron-right'}`}></i>
-                                    </button>
-                                    <div id="sidebar-tooltip" className="tooltip hidden top-full mt-2 right-0">
-                                        {showSidebar ? 'Hide Sidebar' : 'Show Sidebar'}
-                                    </div>
-                                </div>
+                                <button
+                                    className="absolute top-4 right-4 p-2 rounded-full bg-cyan-600 hover:bg-cyan-700 micro-interaction"
+                                    onClick={() => setShowSidebar(!showSidebar)}
+                                    aria-label={showSidebar ? 'Hide sidebar' : 'Show sidebar'}
+                                >
+                                    <i className={`fa ${showSidebar ? 'fa-chevron-left' : 'fa-chevron-right'}`}></i>
+                                </button>
                             </div>
 
+                            {/* Main Content */}
                             <div className={`flex-1 p-4 sm:p-8 transition-all duration-300 ${showSidebar ? 'ml-64' : 'ml-0'}`}>
-                                {activeTab === 'vault' && <PasswordVault passwords={filteredPasswords} searchQuery={searchQuery} />}
+                                {activeTab === 'vault' && <PasswordVault passwords={filteredPasswords} />}
                                 {activeTab === 'generator' && <PasswordGenerator />}
                                 {activeTab === 'checker' && <PasswordChecker />}
                                 {activeTab === '2fa' && <TwoFactorAuth />}
                                 {activeTab === 'dashboard' && <Dashboard passwords={passwords} />}
                                 <button
-                                    className="fixed top-4 right-4 p-3 rounded-full bg-purple-600 dark:bg-purple-600 text-white hover:bg-purple-700 micro-interaction"
+                                    className="fixed top-4 right-4 p-2 rounded-full bg-indigo-600 dark:bg-cyan-600 text-white hover:bg-indigo-700 dark:hover:bg-cyan-700 micro-interaction"
                                     onClick={toggleTheme}
                                     aria-label="Toggle theme"
                                 >
                                     <i className={`fa ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
                                 </button>
                                 {notification && (
-                                    <div className={`fixed bottom-4 right-4 p-3 rounded-lg ${notification.type === 'error' ? 'bg-red-100 text-red-700' : notification.type === 'success' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'} micro-interaction`}>
+                                    <div className={`fixed bottom-4 right-4 p-3 rounded-lg ${notification.type === 'error' ? 'bg-red-100 text-red-700' : notification.type === 'success' ? 'bg-cyan-100 text-cyan-700' : 'bg-gray-100 text-gray-700'} micro-interaction`}>
                                         {notification.message}
                                         <button
                                             className="ml-2 text-sm"
@@ -584,44 +371,21 @@
                                 )}
                             </div>
 
+                            {/* Onboarding Tour */}
                             {showTour && (
                                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                     <div className="glass p-6 rounded-2xl max-w-md modal show">
-                                        {tourStep === 0 && (
-                                            <>
-                                                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Welcome to Password Vault!</h3>
-                                                <p className="text-gray-700 dark:text-gray-200 mb-4">Securely manage your passwords with encrypted storage, password generation, breach checking, and 2FA setup.</p>
-                                                <button
-                                                    className="w-full p-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 micro-interaction"
-                                                    onClick={() => setTourStep(1)}
-                                                >
-                                                    Next
-                                                </button>
-                                            </>
-                                        )}
-                                        {tourStep === 1 && (
-                                            <>
-                                                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Your Master Password</h3>
-                                                <p className="text-gray-700 dark:text-gray-200 mb-4">The master password is the key to your vault. It encrypts all your data and cannot be recovered if lost. Keep it safe!</p>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        className="flex-1 p-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 micro-interaction"
-                                                        onClick={() => {
-                                                            localStorage.setItem('tourCompleted', 'true');
-                                                            setShowTour(false);
-                                                        }}
-                                                    >
-                                                        Get Started
-                                                    </button>
-                                                    <button
-                                                        className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
-                                                        onClick={() => setTourStep(0)}
-                                                    >
-                                                        Back
-                                                    </button>
-                                                </div>
-                                            </>
-                                        )}
+                                        <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Welcome to Password Vault!</h3>
+                                        <p className="text-gray-700 dark:text-gray-200 mb-4">Securely manage your passwords with encrypted storage, password generation, breach checking, and 2FA setup.</p>
+                                        <button
+                                            className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
+                                            onClick={() => {
+                                                localStorage.setItem('tourCompleted', 'true');
+                                                setShowTour(false);
+                                            }}
+                                        >
+                                            Get Started
+                                        </button>
                                     </div>
                                 </div>
                             )}
@@ -631,7 +395,7 @@
             );
         };
 
-        const PasswordVault = ({ passwords, searchQuery }) => {
+        const PasswordVault = ({ passwords }) => {
             const { savePasswords, masterPassword, sessionToken } = useContext(AuthContext);
             const [name, setName] = useState('');
             const [password, setPassword] = useState('');
@@ -775,17 +539,13 @@
                 return score >= 80 ? 'Strong' : score >= 50 ? 'Medium' : 'Weak';
             };
 
-            const isSearchMatch = (text) => {
-                return searchQuery && text.toLowerCase().includes(searchQuery.toLowerCase());
-            };
-
             return (
-                <div className="glass p-4 sm:p-8 rounded-3xl relative">
-                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-purple-500">Password Vault</h2>
+                <div className="glass p-4 sm:p-8 rounded-3xl">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-indigo-500">Password Vault</h2>
                     <div className="flex flex-col sm:flex-row gap-2 mb-4">
                         <button
                             ref={addButtonRef}
-                            className="p-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 micro-interaction"
+                            className="p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                             onClick={() => setShowModal(true)}
                             onMouseEnter={() => setShowTooltip(true)}
                             onMouseLeave={() => setShowTooltip(false)}
@@ -823,7 +583,7 @@
                             <i className={`fa fa-${privacyMode ? 'eye-slash' : 'eye'} mr-2`}></i> {privacyMode ? 'Show' : 'Hide'}
                         </button>
                         <button
-                            className="p-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 micro-interaction"
+                            className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
                             onClick={exportBackupKey}
                             aria-label="Export backup key"
                         >
@@ -835,13 +595,9 @@
                             <p className="text-gray-600 dark:text-gray-300 col-span-full text-center">No passwords stored yet.</p>
                         ) : (
                             passwords.map(pwd => (
-                                <div key={pwd.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction transition-transform duration-200 hover:scale-105">
-                                    <h3 className={`font-semibold text-gray-900 dark:text-white ${isSearchMatch(pwd.name) ? 'highlight-search' : ''}`}>
-                                        {pwd.name}
-                                    </h3>
-                                    <p className={`text-sm text-gray-600 dark:text-gray-300 ${isSearchMatch(pwd.category) ? 'highlight-search' : ''}`}>
-                                        {pwd.category}
-                                    </p>
+                                <div key={pwd.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                                    <h3 className="font-semibold text-gray-900 dark:text-white">{pwd.name}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-300">{pwd.category}</p>
                                     <p className={`text-sm text-gray-600 dark:text-gray-300 ${privacyMode ? 'blur-sensitive' : ''}`}>
                                         {pwd.password}
                                     </p>
@@ -856,7 +612,7 @@
                                     )}
                                     <div className="flex gap-2 mt-2">
                                         <button
-                                            className="p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                                            className="p-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700"
                                             onClick={() => { navigator.clipboard.writeText(pwd.password); markUsed(pwd.id); }}
                                             title="Copy Password"
                                             aria-label="Copy password"
@@ -880,7 +636,7 @@
                                             <i className="fa fa-trash"></i>
                                         </button>
                                         <button
-                                            className="p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                                            className="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
                                             onClick={() => sharePasswordEntry(pwd)}
                                             title="Share Password"
                                             aria-label="Share password"
@@ -899,7 +655,7 @@
                                 <input
                                     type="text"
                                     placeholder="Name (e.g., Email)"
-                                    className="w-full p-4 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 text-lg"
+                                    className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     aria-label="Password name"
@@ -907,13 +663,13 @@
                                 <input
                                     type="password"
                                     placeholder="Password"
-                                    className="w-full p-4 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 text-lg"
+                                    className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     aria-label="Password"
                                 />
                                 <select
-                                    className="w-full p-4 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 text-lg"
+                                    className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                     value={category}
                                     onChange={(e) => setCategory(e.target.value)}
                                     aria-label="Password category"
@@ -925,14 +681,14 @@
                                 </select>
                                 <div className="flex gap-2">
                                     <button
-                                        className="flex-1 p-4 bg-purple-600 text-white rounded-xl hover:bg-purple-700 micro-interaction text-lg"
+                                        className="flex-1 p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                         onClick={addOrEditPassword}
                                         aria-label={editId ? 'Update password' : 'Save password'}
                                     >
                                         {editId ? 'Update' : 'Save'}
                                     </button>
                                     <button
-                                        className="p-4 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction text-lg"
+                                        className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
                                         onClick={() => {
                                             setName('');
                                             setPassword('');
@@ -957,19 +713,19 @@
                                     type="text"
                                     value={sharePassword}
                                     readOnly
-                                    className="w-full p-4 mb-4 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-lg"
+                                    className="w-full p-3 mb-4 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                                     aria-label="Encrypted share link"
                                 />
                                 <div className="flex gap-2">
                                     <button
-                                        className="flex-1 p-4 bg-purple-600 text-white rounded-xl hover:bg-purple-700 micro-interaction text-lg"
+                                        className="flex-1 p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                         onClick={() => navigator.clipboard.writeText(sharePassword)}
                                         aria-label="Copy share link"
                                     >
                                         Copy Link
                                     </button>
                                     <button
-                                        className="p-4 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction text-lg"
+                                        className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
                                         onClick={() => setShowShareModal(false)}
                                         aria-label="Close"
                                     >
@@ -979,13 +735,6 @@
                             </div>
                         </div>
                     )}
-                    <button
-                        className="fab"
-                        onClick={() => setShowModal(true)}
-                        aria-label="Quick add password"
-                    >
-                        <i className="fa fa-plus text-2xl"></i>
-                    </button>
                 </div>
             );
         };
@@ -1091,7 +840,7 @@
 
             return (
                 <div className="glass p-4 sm:p-8 rounded-3xl">
-                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-purple-500">Password Generator</h2>
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-indigo-500">Password Generator</h2>
                     <div className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -1103,7 +852,7 @@
                                 max="32"
                                 value={length}
                                 onChange={(e) => setLength(e.target.value)}
-                                className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg cursor-pointer accent-purple-500"
+                                className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg cursor-pointer accent-cyan-500"
                                 disabled={options.passphrase}
                                 aria-label="Password length"
                             />
@@ -1115,7 +864,7 @@
                                         type="checkbox"
                                         checked={options[key]}
                                         onChange={() => setOptions({ ...options, [key]: !options[key], ...(key === 'passphrase' ? { uppercase: false, lowercase: false, numbers: false, symbols: false } : {}) })}
-                                        className="h-4 w-4 text-purple-600 focus:ring-purple-500"
+                                        className="h-4 w-4 text-cyan-600 focus:ring-cyan-500"
                                         disabled={key !== 'passphrase' && options.passphrase}
                                         aria-label={key}
                                     />
@@ -1135,7 +884,7 @@
                                 max="365"
                                 value={expirationDays}
                                 onChange={(e) => setExpirationDays(e.target.value)}
-                                className="w-full p-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 text-lg"
+                                className="w-full p-3 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                 aria-label="Expiration days"
                             />
                         </div>
@@ -1144,11 +893,11 @@
                                 type="text"
                                 value={password}
                                 readOnly
-                                className="w-full p-4 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 text-lg"
+                                className="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                 aria-label="Generated password"
                             />
                             <button
-                                className="p-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 micro-interaction"
+                                className="p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                 onClick={() => navigator.clipboard.writeText(password)}
                                 title="Copy Password"
                                 aria-label="Copy password"
@@ -1164,7 +913,7 @@
                                 <i className="fa fa-qrcode"></i>
                             </button>
                             <button
-                                className="p-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 micro-interaction"
+                                className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
                                 onClick={saveToVault}
                                 title="Save to Vault"
                                 aria-label="Save to vault"
@@ -1174,7 +923,7 @@
                         </div>
                         <button
                             ref={generateButtonRef}
-                            className="w-full p-4 bg-purple-600 text-white rounded-xl hover:bg-purple-700 micro-interaction text-lg"
+                            className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                             onClick={generatePassword}
                             onMouseEnter={() => setShowTooltip(true)}
                             onMouseLeave={() => setShowTooltip(false)}
@@ -1200,7 +949,7 @@
                                 <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Password QR Code</h3>
                                 <div ref={qrRef} className="flex justify-center mb-4"></div>
                                 <button
-                                    className="w-full p-4 bg-purple-600 text-white rounded-xl hover:bg-purple-700 micro-interaction text-lg"
+                                    className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                     onClick={() => setShowQRModal(false)}
                                     aria-label="Close QR modal"
                                 >
@@ -1285,12 +1034,12 @@
 
             return (
                 <div className="glass p-4 sm:p-8 rounded-3xl">
-                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-purple-500">Password Checker</h2>
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-indigo-500">Password Checker</h2>
                     <div className="relative mb-4">
                         <input
                             type={showPassword ? 'text' : 'password'}
                             placeholder="Enter password to check"
-                            className="w-full p-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 text-lg"
+                            className="w-full p-3 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && checkBreach()}
@@ -1305,7 +1054,7 @@
                         </button>
                     </div>
                     <button
-                        className="w-full p-4 bg-purple-600 text-white rounded-xl hover:bg-purple-700 micro-interaction flex items-center justify-center text-lg"
+                        className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction flex items-center justify-center"
                         onClick={checkBreach}
                         disabled={isChecking}
                         aria-label="Check password for breaches"
@@ -1320,13 +1069,13 @@
                     </button>
                     {strength.score > 0 && (
                         <div className="mt-4">
-                            <div className={`strength-bar w-${strength.score}/5 ${strength.text === 'Strong' ? 'bg-purple-500' : strength.text === 'Medium' ? 'bg-yellow-400' : 'bg-red-500'}`}></div>
+                            <div className={`strength-bar w-${strength.score}/5 ${strength.text === 'Strong' ? 'bg-cyan-500' : strength.text === 'Medium' ? 'bg-yellow-400' : 'bg-red-500'}`}></div>
                             <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">Strength: {strength.text}</p>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Entropy: {strength.entropy} bits</p>
                         </div>
                     )}
                     {breach.checked && (
-                        <p className={`text-sm mt-2 ${breach.breached ? 'text-red-600 dark:text-red-400' : 'text-purple-600 dark:text-purple-400'}`}>
+                        <p className={`text-sm mt-2 ${breach.breached ? 'text-red-600 dark:text-red-400' : 'text-cyan-600 dark:text-cyan-400'}`}>
                             {breach.breached
                                 ? `Warning: This password was found in ${breach.count} breaches!`
                                 : 'No breaches found. This password appears safe.'}
@@ -1381,6 +1130,7 @@
                 setShowQRModal(true);
             };
 
+            // Update TOTP code every 30 seconds
             useEffect(() => {
                 if (!secret) return;
                 const interval = setInterval(() => {
@@ -1391,16 +1141,130 @@
 
             return (
                 <div className="glass p-4 sm:p-8 rounded-3xl">
-                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-purple-500">2FA Setup</h2>
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-indigo-500">2FA Setup</h2>
                     <div className="space-y-4">
                         <input
                             type="text"
                             placeholder="Service Name (e.g., Email)"
-                            className="w-full p-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 text-lg"
+                            className="w-full p-3 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                             value={serviceName}
                             onChange={(e) => setServiceName(e.target.value)}
                             aria-label="Service name"
                         />
                         <div className="flex items-center gap-2">
                             <input
-                                type="
+                                type="text"
+                                value={secret}
+                                readOnly
+                                className="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                placeholder="Generate a 2FA secret"
+                                aria-label="2FA secret"
+                            />
+                            <button
+                                className="p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
+                                onClick={() => navigator.clipboard.writeText(secret)}
+                                title="Copy Secret"
+                                aria-label="Copy 2FA secret"
+                            >
+                                <i className="fa fa-copy"></i>
+                            </button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                value={totpCode}
+                                readOnly
+                                className="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                placeholder="TOTP Code"
+                                aria-label="TOTP code"
+                            />
+                            <button
+                                className="p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
+                                onClick={() => navigator.clipboard.writeText(totpCode)}
+                                title="Copy TOTP Code"
+                                aria-label="Copy TOTP code"
+                            >
+                                <i className="fa fa-copy"></i>
+                            </button>
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                className="flex-1 p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
+                                onClick={generate2FASecret}
+                                aria-label="Generate 2FA secret"
+                            >
+                                Generate Secret
+                            </button>
+                            <button
+                                className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
+                                onClick={generateQR}
+                                aria-label="Show QR code"
+                            >
+                                Show QR Code
+                            </button>
+                        </div>
+                    </div>
+                    {showQRModal && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="glass p-6 rounded-2xl max-w-md w-full modal show">
+                                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">2FA QR Code</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Scan with your authenticator app (e.g., Google Authenticator).</p>
+                                <div ref={qrRef} className="flex justify-center mb-4"></div>
+                                <button
+                                    className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
+                                    onClick={() => setShowQRModal(false)}
+                                    aria-label="Close QR modal"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const Dashboard = ({ passwords }) => {
+            const strongPasswords = passwords.filter(pwd => {
+                let score = 0;
+                if (pwd.password.length > 8) score += 20;
+                if (pwd.password.length > 12) score += 20;
+                if (/[A-Z]/.test(pwd)) score += 20;
+                if (/[a-z]/.test(pwd)) score += 20;
+                if (/[0-9]/.test(pwd)) score += 10;
+                if (/[^A-Za-z0-9]/.test(pwd)) score += 10;
+                return score >= 80;
+            }).length;
+
+            const expiredPasswords = passwords.filter(pwd => pwd.expiresAt && new Date(pwd.expiresAt) < new Date()).length;
+
+            return (
+                <div className="glass p-4 sm:p-8 rounded-3xl">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-indigo-500">Password Health Dashboard</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">Total Passwords</h3>
+                            <p className="text-2xl text-cyan-600 dark:text-cyan-400">{passwords.length}</p>
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">Strong Passwords</h3>
+                            <p className="text-2xl text-cyan-600 dark:text-cyan-400">{strongPasswords}</p>
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">Expired Passwords</h3>
+                            <p className="text-2xl text-red-600 dark:text-red-400">{expiredPasswords}</p>
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">Categories</h3>
+                            <p className="text-2xl text-cyan-600 dark:text-cyan-400">{new Set(passwords.map(pwd => pwd.category)).size}</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
