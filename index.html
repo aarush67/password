@@ -296,7 +296,7 @@
 
             return (
                 <ThemeContext.Provider value={{ theme, toggleTheme }}>
-                    <AuthContext.Provider value={{ savePasswords, masterPassword, sessionToken }}>
+                    <AuthContext.Provider value={{ savePasswords, masterPassword, sessionToken, setNotification }}>
                         <div className="flex h-screen" onClick={() => setLastActivity(Date.now())}>
                             {/* Sidebar */}
                             <div className={`fixed inset-y-0 left-0 w-64 bg-gray-800 dark:bg-gray-900 text-white p-4 z-50 glass ${showSidebar ? '' : 'translate-x-[-100%]'} transition-transform duration-300`}>
@@ -409,10 +409,7 @@
             const [passwordHistory, setPasswordHistory] = useState(JSON.parse(localStorage.getItem('passwordHistory')) || {});
             const addButtonRef = useRef(null);
 
-            const setNotification = (notification) => {
-                const app = document.getElementById('root')._reactRootContainer._internalRoot.current.memoizedState.element.props.children[1].props.value;
-                app.setNotification(notification);
-            };
+            const { setNotification } = useContext(AuthContext);
 
             const addOrEditPassword = () => {
                 if (!sessionToken) return;
@@ -756,10 +753,7 @@
             const generateButtonRef = useRef(null);
             const qrRef = useRef(null);
 
-            const setNotification = (notification) => {
-                const app = document.getElementById('root')._reactRootContainer._internalRoot.current.memoizedState.element.props.children[1].props.value;
-                app.setNotification(notification);
-            };
+            const { setNotification } = useContext(AuthContext);
 
             const generatePassword = async () => {
                 if (!sessionToken) return;
@@ -970,10 +964,7 @@
             const [isChecking, setIsChecking] = useState(false);
             const [showPassword, setShowPassword] = useState(false);
 
-            const setNotification = (notification) => {
-                const app = document.getElementById('root')._reactRootContainer._internalRoot.current.memoizedState.element.props.children[1].props.value;
-                app.setNotification(notification);
-            };
+            const { setNotification } = useContext(AuthContext);
 
             const checkStrength = () => {
                 if (!password) {
@@ -1006,9 +997,8 @@
                 const suffix = hash.slice(5);
 
                 try {
-                    const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, { headers: { 'Add-Padding': 'true' } });
-                    if (!response.ok) throw new Error(`Breach check failed: ${response.statusText}`);
-                const text = await response.text();
+                    const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+                    const text = await response.text();
                     const lines = text.split('\n');
                     for (let line of lines) {
                         const [hashSuffix, count] = line.split(':');
@@ -1047,7 +1037,7 @@
                             aria-label="Password to check"
                         />
                         <button
-                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
                             onClick={() => setShowPassword(!showPassword)}
                             aria-label={showPassword ? 'Hide password' : 'Show password'}
                         >
@@ -1070,10 +1060,7 @@
                     </button>
                     {strength.score > 0 && (
                         <div className="mt-4">
-                            <div className="strength-bar" style={{
-    width: `${strength.score}%`,
-    backgroundColor: strength.text === 'Strong' ? '#06b6d4' : strength.text === 'Medium' ? '#facc15' : '#ef4444'
-}}></div>
+                            <div className={`strength-bar w-${strength.score}/5 ${strength.text === 'Strong' ? 'bg-cyan-500' : strength.text === 'Medium' ? 'bg-yellow-400' : 'bg-red-500'}`}></div>
                             <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">Strength: {strength.text}</p>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Entropy: {strength.entropy} bits</p>
                         </div>
@@ -1097,10 +1084,7 @@
             const [showQRModal, setShowQRModal] = useState(false);
             const qrRef = useRef(null);
 
-            const setNotification = (notification) => {
-                const app = document.getElementById('root')._reactRootContainer._internalRoot.current.memoizedState.element.props.children[1].props.value;
-                app.setNotification(notification);
-            };
+            const { setNotification } = useContext(AuthContext);
 
             const generate2FASecret = () => {
                 if (!sessionToken) return;
