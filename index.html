@@ -5,16 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Password Vault</title>
 
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-03E9PJ4LS0"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-03E9PJ4LS0');
-</script>
-
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
@@ -386,7 +376,15 @@
                                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                     <div className="glass p-6 rounded-2xl max-w-md modal show">
                                         <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Welcome to Password Vault!</h3>
-                                        <p className="text-gray-700 dark:text-gray-200 mb-4">Securely manage and generate strong passwords, check for data breaches, and enable 2FA for better protection.</p>
+                                        <ol className="text-gray-700 dark:text-gray-200 mb-4 list-decimal space-y-2 pl-4 text-left">
+        <li><strong>🔐 Vault:</strong> Stores all your passwords, encrypted and safe. Only you can access them.</li>
+        <li><strong>⚙️ Generator:</strong> Easily create strong, secure passwords or passphrases.</li>
+        <li><strong>🛡️ Checker:</strong> Check your password's strength and see if it's in a known data breach.</li>
+        <li><strong>📱 2FA:</strong> Create time-based 2-factor codes for services you use.</li>
+        <li><strong>📊 Dashboard:</strong> Visual overview of your password security health.</li>
+        <li><strong>🔐 Login:</strong> Use your master password to lock and unlock your vault securely.</li>
+    </ol>
+    <p className="text-gray-700 dark:text-gray-200 mt-4"><strong>🔒 All passwords are stored and encrypted locally on your device only. Nothing ever leaves your computer for complete privacy and security.</strong></p>
                                         <button
                                             className="w-full p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 micro-interaction"
                                             onClick={() => {
