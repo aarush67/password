@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha1/0.6.0/sha1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/totp-generator/0.0.14/totp-generator.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
@@ -22,44 +23,72 @@
             transform: translateX(-100%);
         }
         .glass {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
         .dark .glass {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
         .modal {
             transition: opacity 0.3s ease, transform 0.3s ease;
-            transform: translateY(-20px);
+            transform: scale(0.9);
             opacity: 0;
         }
         .modal.show {
-            transform: translateY(0);
+            transform: scale(1);
             opacity: 1;
         }
         .strength-bar {
-            height: 8px;
-            border-radius: 4px;
+            height: 10px;
+            border-radius: 5px;
             transition: width 0.4s ease, background-color 0.4s ease;
         }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .blur-sensitive {
+            filter: blur(4px);
+            transition: filter 0.2s ease;
+        }
+        .blur-sensitive:hover {
+            filter: none;
+        }
+        .micro-interaction {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .micro-interaction:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         .tooltip {
             position: absolute;
             background: #1f2937;
             color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
             z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #06b6d4;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-indigo-100 to-cyan-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+<body class="min-h-screen bg-gradient-to-br from-indigo-200 to-cyan-200 dark:from-gray-900 dark:to-gray-800 transition-colors duration-500">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -67,13 +96,69 @@
         const { createRoot } = ReactDOM;
 
         const ThemeContext = createContext();
+        const AuthContext = createContext();
+
+        // Encryption utilities
+        const deriveKey = async (password, salt) => {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                "raw",
+                enc.encode(password),
+                { name: "PBKDF2" },
+                false,
+                ["deriveBits", "deriveKey"]
+            );
+            return crypto.subtle.deriveKey(
+                {
+                    name: "PBKDF2",
+                    salt,
+                    iterations: 100000,
+                    hash: "SHA-256"
+                },
+                keyMaterial,
+                { name: "AES-GCM", length: 256 },
+                true,
+                ["encrypt", "decrypt"]
+            );
+        };
+
+        const encryptData = async (data, password) => {
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const key = await deriveKey(password, salt);
+            const enc = new TextEncoder();
+            const encrypted = await crypto.subtle.encrypt(
+                { name: "AES-GCM", iv },
+                key,
+                enc.encode(JSON.stringify(data))
+            );
+            return { encrypted: new Uint8Array(encrypted), salt, iv };
+        };
+
+        const decryptData = async (encrypted, salt, iv, password) => {
+            try {
+                const key = await deriveKey(password, salt);
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: "AES-GCM", iv },
+                    key,
+                    encrypted
+                );
+                const dec = new TextDecoder();
+                return JSON.parse(dec.decode(decrypted));
+            } catch (e) {
+                throw new Error("Invalid password or corrupted data");
+            }
+        };
 
         const App = () => {
             const [theme, setTheme] = useState(localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
             const [activeTab, setActiveTab] = useState('vault');
-            const [passwords, setPasswords] = useState(JSON.parse(localStorage.getItem('passwords')) || []);
+            const [passwords, setPasswords] = useState([]);
             const [searchQuery, setSearchQuery] = useState('');
             const [showSidebar, setShowSidebar] = useState(true);
+            const [masterPassword, setMasterPassword] = useState('');
+            const [isAuthenticated, setIsAuthenticated] = useState(false);
+            const [showTour, setShowTour] = useState(!localStorage.getItem('tourCompleted'));
 
             useEffect(() => {
                 document.body.classList.toggle('dark', theme === 'dark');
@@ -84,93 +169,208 @@
                 setTheme(theme === 'dark' ? 'light' : 'dark');
             };
 
+            const handleLogin = async (password) => {
+                try {
+                    const stored = localStorage.getItem('encryptedPasswords');
+                    if (!stored) {
+                        const salt = crypto.getRandomValues(new Uint8Array(16));
+                        localStorage.setItem('salt', Array.from(salt).join(','));
+                        setMasterPassword(password);
+                        setIsAuthenticated(true);
+                        return;
+                    }
+                    const { encrypted, salt, iv } = JSON.parse(stored);
+                    const decrypted = await decryptData(
+                        new Uint8Array(encrypted),
+                        new Uint8Array(salt.split(',').map(Number)),
+                        new Uint8Array(iv.split(',').map(Number)),
+                        password
+                    );
+                    setPasswords(decrypted);
+                    setMasterPassword(password);
+                    setIsAuthenticated(true);
+                } catch (e) {
+                    alert("Incorrect master password");
+                }
+            };
+
+            const handleLogout = () => {
+                setPasswords([]);
+                setMasterPassword('');
+                setIsAuthenticated(false);
+            };
+
+            const savePasswords = async (newPasswords) => {
+                setPasswords(newPasswords);
+                if (masterPassword) {
+                    const { encrypted, salt, iv } = await encryptData(newPasswords, masterPassword);
+                    localStorage.setItem('encryptedPasswords', JSON.stringify({
+                        encrypted: Array.from(encrypted),
+                        salt: Array.from(salt).join(','),
+                        iv: Array.from(iv).join(',')
+                    }));
+                }
+            };
+
             const filteredPasswords = passwords.filter(pwd =>
                 pwd.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 pwd.category.toLowerCase().includes(searchQuery.toLowerCase())
             );
 
-            return (
-                <ThemeContext.Provider value={{ theme, toggleTheme }}>
-                    <div className="flex h-screen">
-                        {/* Sidebar */}
-                        <div className={`fixed inset-y-0 left-0 w-64 bg-gray-800 dark:bg-gray-900 text-white p-4 sidebar ${showSidebar ? '' : 'sidebar-hidden'} glass`}>
-                            <h2 className="text-2xl font-bold mb-6">Password Vault</h2>
+            if (!isAuthenticated) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center p-4">
+                        <div className="glass p-8 rounded-3xl max-w-md w-full">
+                            <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white text-center">Password Vault Login</h2>
                             <input
-                                type="text"
-                                placeholder="Search passwords..."
-                                className="w-full p-2 mb-4 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
+                                type="password"
+                                placeholder="Enter Master Password"
+                                className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                onChange={(e) => setMasterPassword(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && handleLogin(masterPassword)}
                             />
-                            <nav>
-                                <button
-                                    className={`w-full p-2 mb-2 rounded-lg text-left ${activeTab === 'vault' ? 'bg-cyan-600' : 'hover:bg-gray-700'}`}
-                                    onClick={() => setActiveTab('vault')}
-                                >
-                                    <i className="fa fa-vault mr-2"></i> Vault
-                                </button>
-                                <button
-                                    className={`w-full p-2 mb-2 rounded-lg text-left ${activeTab === 'generator' ? 'bg-cyan-600' : 'hover:bg-gray-700'}`}
-                                    onClick={() => setActiveTab('generator')}
-                                >
-                                    <i className="fa fa-key mr-2"></i> Generator
-                                </button>
-                                <button
-                                    className={`w-full p-2 mb-2 rounded-lg text-left ${activeTab === 'checker' ? 'bg-cyan-600' : 'hover:bg-gray-700'}`}
-                                    onClick={() => setActiveTab('checker')}
-                                >
-                                    <i className="fa fa-shield mr-2"></i> Checker
-                                </button>
-                                <button
-                                    className={`w-full p-2 mb-2 rounded-lg text-left ${activeTab === 'dashboard' ? 'bg-cyan-600' : 'hover:bg-gray-700'}`}
-                                    onClick={() => setActiveTab('dashboard')}
-                                >
-                                    <i className="fa fa-chart-line mr-2"></i> Dashboard
-                                </button>
-                            </nav>
                             <button
-                                className="absolute top-4 right-4 p-2 rounded-full bg-cyan-600 hover:bg-cyan-700"
-                                onClick={() => setShowSidebar(!showSidebar)}
+                                className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
+                                onClick={() => handleLogin(masterPassword)}
                             >
-                                <i className={`fa ${showSidebar ? 'fa-chevron-left' : 'fa-chevron-right'}`}></i>
-                            </button>
-                        </div>
-
-                        {/* Main Content */}
-                        <div className={`flex-1 p-8 transition-all duration-300 ${showSidebar ? 'ml-64' : 'ml-0'}`}>
-                            {activeTab === 'vault' && <PasswordVault passwords={filteredPasswords} setPasswords={setPasswords} />}
-                            {activeTab === 'generator' && <PasswordGenerator />}
-                            {activeTab === 'checker' && <PasswordChecker />}
-                            {activeTab === 'dashboard' && <Dashboard passwords={passwords} />}
-                            <button
-                                className="fixed top-4 right-4 p-2 rounded-full bg-indigo-600 dark:bg-cyan-600 text-white hover:bg-indigo-700 dark:hover:bg-cyan-700"
-                                onClick={toggleTheme}
-                                aria-label="Toggle theme"
-                            >
-                                <i className={`fa ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
+                                Unlock Vault
                             </button>
                         </div>
                     </div>
+                );
+            }
+
+            return (
+                <ThemeContext.Provider value={{ theme, toggleTheme }}>
+                    <AuthContext.Provider value={{ savePasswords, masterPassword }}>
+                        <div className="flex h-screen">
+                            {/* Sidebar */}
+                            <div className={`fixed inset-y-0 left-0 w-64 bg-gray-800 dark:bg-gray-900 text-white p-4 sidebar ${showSidebar ? '' : 'sidebar-hidden'} glass z-50`}>
+                                <h2 className="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-indigo-400">Password Vault</h2>
+                                <input
+                                    type="text"
+                                    placeholder="Search passwords..."
+                                    className="w-full p-2 mb-4 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                                <nav>
+                                    {['vault', 'generator', 'checker', '2fa', 'dashboard'].map(tab => (
+                                        <button
+                                            key={tab}
+                                            className={`w-full p-2 mb-2 rounded-lg text-left ${activeTab === tab ? 'bg-cyan-600' : 'hover:bg-gray-700'} micro-interaction`}
+                                            onClick={() => setActiveTab(tab)}
+                                        >
+                                            <i className={`fa fa-${tab === 'vault' ? 'vault' : tab === 'generator' ? 'key' : tab === 'checker' ? 'shield' : tab === '2fa' ? 'lock' : 'chart-line'} mr-2`}></i>
+                                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                        </button>
+                                    ))}
+                                </nav>
+                                <button
+                                    className="w-full p-2 mt-4 bg-red-600 hover:bg-red-700 rounded-lg micro-interaction"
+                                    onClick={handleLogout}
+                                >
+                                    <i className="fa fa-sign-out-alt mr-2"></i> Logout
+                                </button>
+                                <button
+                                    className="absolute top-4 right-4 p-2 rounded-full bg-cyan-600 hover:bg-cyan-700 micro-interaction"
+                                    onClick={() => setShowSidebar(!showSidebar)}
+                                >
+                                    <i className={`fa ${showSidebar ? 'fa-chevron-left' : 'fa-chevron-right'}`}></i>
+                                </button>
+                            </div>
+
+                            {/* Main Content */}
+                            <div className={`flex-1 p-4 sm:p-8 transition-all duration-300 ${showSidebar ? 'ml-64' : 'ml-0'}`}>
+                                {activeTab === 'vault' && <PasswordVault passwords={filteredPasswords} />}
+                                {activeTab === 'generator' && <PasswordGenerator />}
+                                {activeTab === 'checker' && <PasswordChecker />}
+                                {activeTab === '2fa' && <TwoFactorAuth />}
+                                {activeTab === 'dashboard' && <Dashboard passwords={passwords} />}
+                                <button
+                                    className="fixed top-4 right-4 p-2 rounded-full bg-indigo-600 dark:bg-cyan-600 text-white hover:bg-indigo-700 dark:hover:bg-cyan-700 micro-interaction"
+                                    onClick={toggleTheme}
+                                    aria-label="Toggle theme"
+                                >
+                                    <i className={`fa ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
+                                </button>
+                            </div>
+
+                            {/* Onboarding Tour */}
+                            {showTour && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                    <div className="glass p-6 rounded-2xl max-w-md modal show">
+                                        <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Welcome to Password Vault!</h3>
+                                        <p className="text-gray-700 dark:text-gray-200 mb-4">Explore secure password management with features like vault storage, password generation, breach checking, and 2FA setup.</p>
+                                        <button
+                                            className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
+                                            onClick={() => {
+                                                localStorage.setItem('tourCompleted', 'true');
+                                                setShowTour(false);
+                                            }}
+                                        >
+                                            Start Using
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </AuthContext.Provider>
                 </ThemeContext.Provider>
             );
         };
 
-        const PasswordVault = ({ passwords, setPasswords }) => {
+        const PasswordVault = ({ passwords }) => {
+            const { savePasswords } = useContext(AuthContext);
             const [name, setName] = useState('');
             const [password, setPassword] = useState('');
             const [category, setCategory] = useState('General');
             const [showModal, setShowModal] = useState(false);
+            const [editId, setEditId] = useState(null);
             const [showTooltip, setShowTooltip] = useState(false);
+            const [privacyMode, setPrivacyMode] = useState(true);
             const addButtonRef = useRef(null);
 
-            const addPassword = () => {
+            const addOrEditPassword = () => {
                 if (!name || !password) return;
-                const newPassword = { id: Date.now(), name, password, category, createdAt: new Date().toISOString() };
-                setPasswords([...passwords, newPassword]);
-                localStorage.setItem('passwords', JSON.stringify([...passwords, newPassword]));
+                const newPassword = {
+                    id: editId || Date.now(),
+                    name,
+                    password,
+                    category,
+                    createdAt: new Date().toISOString(),
+                    lastUsed: editId ? passwords.find(p => p.id === editId)?.lastUsed : null
+                };
+                const updatedPasswords = editId
+                    ? passwords.map(p => (p.id === editId ? newPassword : p))
+                    : [...passwords, newPassword];
+                savePasswords(updatedPasswords);
                 setName('');
                 setPassword('');
+                setCategory('General');
+                setEditId(null);
                 setShowModal(false);
+            };
+
+            const deletePassword = (id) => {
+                if (confirm("Are you sure you want to delete this password?")) {
+                    savePasswords(passwords.filter(p => p.id !== id));
+                }
+            };
+
+            const editPassword = (pwd) => {
+                setName(pwd.name);
+                setPassword(pwd.password);
+                setCategory(pwd.category);
+                setEditId(pwd.id);
+                setShowModal(true);
+            };
+
+            const markUsed = (id) => {
+                const updatedPasswords = passwords.map(p =>
+                    p.id === id ? { ...p, lastUsed: new Date().toISOString() } : p
+                );
+                savePasswords(updatedPasswords);
             };
 
             const exportPasswords = () => {
@@ -189,74 +389,125 @@
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     const imported = JSON.parse(event.target.result);
-                    setPasswords([...passwords, ...imported]);
-                    localStorage.setItem('passwords', JSON.stringify([...passwords, ...imported]));
+                    savePasswords([...passwords, ...imported]);
                 };
                 reader.readAsText(file);
             };
 
+            const calculateStrength = (pwd) => {
+                let score = 0;
+                if (pwd.length > 8) score += 20;
+                if (pwd.length > 12) score += 20;
+                if (/[A-Z]/.test(pwd)) score += 20;
+                if (/[a-z]/.test(pwd)) score += 20;
+                if (/[0-9]/.test(pwd)) score += 10;
+                if (/[^A-Za-z0-9]/.test(pwd)) score += 10;
+                return score >= 80 ? 'Strong' : score >= 50 ? 'Medium' : 'Weak';
+            };
+
             return (
-                <div className="glass p-8 rounded-3xl">
-                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Password Vault</h2>
-                    <button
-                        ref={addButtonRef}
-                        className="p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 mb-4"
-                        onClick={() => setShowModal(true)}
-                        onMouseEnter={() => setShowTooltip(true)}
-                        onMouseLeave={() => setShowTooltip(false)}
-                    >
-                        Add Password
-                    </button>
-                    {showTooltip && (
-                        <div
-                            className="tooltip"
-                            style={{
-                                top: addButtonRef.current.offsetTop + addButtonRef.current.offsetHeight + 5,
-                                left: addButtonRef.current.offsetLeft
-                            }}
+                <div className="glass p-4 sm:p-8 rounded-3xl">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-indigo-500">Password Vault</h2>
+                    <div className="flex flex-col sm:flex-row gap-2 mb-4">
+                        <button
+                            ref={addButtonRef}
+                            className="p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
+                            onClick={() => setShowModal(true)}
+                            onMouseEnter={() => setShowTooltip(true)}
+                            onMouseLeave={() => setShowTooltip(false)}
                         >
-                            Add a new password to your vault
-                        </div>
-                    )}
-                    <button
-                        className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 ml-2"
-                        onClick={exportPasswords}
-                    >
-                        Export Passwords
-                    </button>
-                    <label className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 ml-2 cursor-pointer">
-                        Import Passwords
-                        <input type="file" accept=".json" onChange={importPasswords} className="hidden" />
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        {passwords.map(pwd => (
-                            <div key={pwd.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                <h3 className="font-semibold">{pwd.name}</h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-300">{pwd.category}</p>
-                                <p className="text-sm text-gray-600 dark:text-gray-300">{pwd.password}</p>
+                            <i className="fa fa-plus mr-2"></i> Add Password
+                        </button>
+                        {showTooltip && (
+                            <div
+                                className="tooltip"
+                                style={{
+                                    top: addButtonRef.current.offsetTop + addButtonRef.current.offsetHeight + 8,
+                                    left: addButtonRef.current.offsetLeft
+                                }}
+                            >
+                                Add a new password to your vault
                             </div>
-                        ))}
+                        )}
+                        <button
+                            className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
+                            onClick={exportPasswords}
+                        >
+                            <i className="fa fa-download mr-2"></i> Export
+                        </button>
+                        <label className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction cursor-pointer">
+                            <i className="fa fa-upload mr-2"></i> Import
+                            <input type="file" accept=".json" onChange={importPasswords} className="hidden" />
+                        </label>
+                        <button
+                            className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
+                            onClick={() => setPrivacyMode(!privacyMode)}
+                        >
+                            <i className={`fa fa-${privacyMode ? 'eye-slash' : 'eye'} mr-2`}></i> {privacyMode ? 'Show' : 'Hide'} Passwords
+                        </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {passwords.length === 0 ? (
+                            <p className="text-gray-600 dark:text-gray-300 col-span-full text-center">No passwords stored yet.</p>
+                        ) : (
+                            filteredPasswords.map(pwd => (
+                                <div key={pwd.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                                    <h3 className="font-semibold text-gray-900 dark:text-white">{pwd.name}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-300">{pwd.category}</p>
+                                    <p className={`text-sm text-gray-600 dark:text-gray-300 ${privacyMode ? 'blur-sensitive' : ''}`}>
+                                        {pwd.password}
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Strength: {calculateStrength(pwd.password)}</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        Last Used: {pwd.lastUsed ? new Date(pwd.lastUsed).toLocaleString() : 'Never'}
+                                    </p>
+                                    <div className="flex gap-2 mt-2">
+                                        <button
+                                            className="p-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700"
+                                            onClick={() => { navigator.clipboard.writeText(pwd.password); markUsed(pwd.id); }}
+                                            title="Copy Password"
+                                        >
+                                            <i className="fa fa-copy"></i>
+                                        </button>
+                                        <button
+                                            className="p-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+                                            onClick={() => editPassword(pwd)}
+                                            title="Edit Password"
+                                        >
+                                            <i className="fa fa-edit"></i>
+                                        </button>
+                                        <button
+                                            className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                                            onClick={() => deletePassword(pwd.id)}
+                                            title="Delete Password"
+                                        >
+                                            <i className="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                     {showModal && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <div className="glass p-6 rounded-2xl modal show">
-                                <h3 className="text-lg font-semibold mb-4">Add Password</h3>
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="glass p-6 rounded-2xl max-w-md w-full modal show">
+                                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{editId ? 'Edit' : 'Add'} Password</h3>
                                 <input
                                     type="text"
-                                    placeholder="Name"
-                                    className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                    placeholder="Name (e.g., Email)"
+                                    className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                 />
                                 <input
                                     type="password"
                                     placeholder="Password"
-                                    className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                    className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
                                 <select
-                                    className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                    className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                                     value={category}
                                     onChange={(e) => setCategory(e.target.value)}
                                 >
@@ -265,16 +516,22 @@
                                     <option>Personal</option>
                                     <option>Finance</option>
                                 </select>
-                                <div className="flex space-x-2">
+                                <div className="flex gap-2">
                                     <button
-                                        className="flex-1 p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700"
-                                        onClick={addPassword}
+                                        className="flex-1 p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
+                                        onClick={addOrEditPassword}
                                     >
-                                        Save
+                                        {editId ? 'Update' : 'Save'}
                                     </button>
                                     <button
-                                        className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700"
-                                        onClick={() => setShowModal(false)}
+                                        className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
+                                        onClick={() => {
+                                            setName('');
+                                            setPassword('');
+                                            setCategory('General');
+                                            setEditId(null);
+                                            setShowModal(false);
+                                        }}
                                     >
                                         Cancel
                                     </button>
@@ -287,18 +544,34 @@
         };
 
         const PasswordGenerator = () => {
+            const { savePasswords, masterPassword } = useContext(AuthContext);
             const [length, setLength] = useState(12);
             const [options, setOptions] = useState({
                 uppercase: true,
                 lowercase: true,
                 numbers: true,
-                symbols: true
+                symbols: true,
+                passphrase: false
             });
             const [password, setPassword] = useState('');
             const [showQRModal, setShowQRModal] = useState(false);
+            const [expirationDays, setExpirationDays] = useState(30);
+            const [showTooltip, setShowTooltip] = useState(false);
+            const generateButtonRef = useRef(null);
             const qrRef = useRef(null);
 
             const generatePassword = async () => {
+                if (options.passphrase) {
+                    const words = ['apple', 'blue', 'cat', 'dog', 'echo', 'fox', 'green', 'house', 'ice', 'jump'];
+                    let passphrase = '';
+                    for (let i = 0; i < 4; i++) {
+                        const randomIndex = Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1) * words.length);
+                        passphrase += words[randomIndex] + (i < 3 ? '-' : '');
+                    }
+                    setPassword(passphrase);
+                    return;
+                }
+
                 const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                 const lowercase = 'abcdefghijklmnopqrstuvwxyz';
                 const numbers = '0123456789';
@@ -309,11 +582,16 @@
                 if (options.numbers) chars += numbers;
                 if (options.symbols) chars += symbols;
 
-                if (!chars) return;
+                if (!chars) {
+                    alert('Please select at least one character type.');
+                    return;
+                }
 
                 let newPassword = '';
+                const array = new Uint32Array(length);
+                crypto.getRandomValues(array);
                 for (let i = 0; i < length; i++) {
-                    const randomIndex = Math.floor(Math.random() * chars.length);
+                    const randomIndex = Math.floor(array[i] / (0xffffffff + 1) * chars.length);
                     newPassword += chars[randomIndex];
                 }
                 setPassword(newPassword);
@@ -333,10 +611,28 @@
                 setShowQRModal(true);
             };
 
+            const saveToVault = () => {
+                if (!password) return;
+                const newPassword = {
+                    id: Date.now(),
+                    name: `Generated-${new Date().toLocaleDateString()}`,
+                    password,
+                    category: 'General',
+                    createdAt: new Date().toISOString(),
+                    expiresAt: new Date(Date.now() + expirationDays * 24 * 60 * 60 * 1000).toISOString()
+                };
+                savePasswords([...JSON.parse(localStorage.getItem('encryptedPasswords') ? await decryptData(
+                    new Uint8Array(JSON.parse(localStorage.getItem('encryptedPasswords')).encrypted),
+                    new Uint8Array(JSON.parse(localStorage.getItem('encryptedPasswords')).salt.split(',').map(Number)),
+                    new Uint8Array(JSON.parse(localStorage.getItem('encryptedPasswords')).iv.split(',').map(Number)),
+                    masterPassword
+                ) : '[]'), newPassword]);
+            };
+
             return (
-                <div className="glass p-8 rounded-3xl">
-                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Password Generator</h2>
-                    <div className="space-y-4">
+                <div className="glass p-4 sm:p-8 rounded-3xl">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-indigo-500">Password Generator</h2>
+                    <div className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                                 Length: {length}
@@ -347,7 +643,8 @@
                                 max="32"
                                 value={length}
                                 onChange={(e) => setLength(e.target.value)}
-                                className="w-full"
+                                className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg cursor-pointer accent-cyan-500"
+                                disabled={options.passphrase}
                             />
                         </div>
                         <div className="space-y-2">
@@ -356,47 +653,86 @@
                                     <input
                                         type="checkbox"
                                         checked={options[key]}
-                                        onChange={() => setOptions({ ...options, [key]: !options[key] })}
-                                        className="h-4 w-4 text-cyan-600"
+                                        onChange={() => setOptions({ ...options, [key]: !options[key], ...(key === 'passphrase' ? { uppercase: false, lowercase: false, numbers: false, symbols: false } : {}) })}
+                                        className="h-4 w-4 text-cyan-600 focus:ring-cyan-500"
+                                        disabled={key !== 'passphrase' && options.passphrase}
                                     />
-                                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-200">{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-200">
+                                        {key === 'passphrase' ? 'Memorable Passphrase' : key.charAt(0).toUpperCase() + key.slice(1)}
+                                    </span>
                                 </label>
                             ))}
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                                Expire After (days): {expirationDays}
+                            </label>
+                            <input
+                                type="number"
+                                min="1"
+                                max="365"
+                                value={expirationDays}
+                                onChange={(e) => setExpirationDays(e.target.value)}
+                                className="w-full p-3 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
                             <input
                                 type="text"
                                 value={password}
                                 readOnly
-                                className="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                className="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
                             />
                             <button
-                                className="p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700"
+                                className="p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                 onClick={() => navigator.clipboard.writeText(password)}
+                                title="Copy Password"
                             >
                                 <i className="fa fa-copy"></i>
                             </button>
                             <button
-                                className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700"
+                                className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
                                 onClick={generateQR}
+                                title="Generate QR Code"
                             >
                                 <i className="fa fa-qrcode"></i>
                             </button>
+                            <button
+                                className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                                onClick={saveToVault}
+                                title="Save to Vault"
+                            >
+                                <i className="fa fa-save"></i>
+                            </button>
                         </div>
                         <button
-                            className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700"
+                            ref={generateButtonRef}
+                            className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                             onClick={generatePassword}
+                            onMouseEnter={() => setShowTooltip(true)}
+                            onMouseLeave={() => setShowTooltip(false)}
                         >
                             Generate Password
                         </button>
+                        {showTooltip && (
+                            <div
+                                className="tooltip"
+                                style={{
+                                    top: generateButtonRef.current.offsetTop + generateButtonRef.current.offsetHeight + 8,
+                                    left: generateButtonRef.current.offsetLeft
+                                }}
+                            >
+                                Create a secure password or passphrase
+                            </div>
+                        )}
                     </div>
                     {showQRModal && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <div className="glass p-6 rounded-2xl modal show">
-                                <h3 className="text-lg font-semibold mb-4">Password QR Code</h3>
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="glass p-6 rounded-2xl max-w-md w-full modal show">
+                                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Password QR Code</h3>
                                 <div ref={qrRef} className="flex justify-center mb-4"></div>
                                 <button
-                                    className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700"
+                                    className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
                                     onClick={() => setShowQRModal(false)}
                                 >
                                     Close
@@ -411,12 +747,13 @@
         const PasswordChecker = () => {
             const [password, setPassword] = useState('');
             const [strength, setStrength] = useState({ score: 0, text: '', entropy: 0 });
-            const [breach, setBreach] = useState({ breached: false, count: 0 });
+            const [breach, setBreach] = useState({ breached: false, count: 0, checked: false });
+            const [isChecking, setIsChecking] = useState(false);
+            const [showPassword, setShowPassword] = useState(false);
 
-            const checkStrength = async () => {
+            const checkStrength = () => {
                 if (!password) {
                     setStrength({ score: 0, text: '', entropy: 0 });
-                    setBreach({ breached: false, count: 0 });
                     return;
                 }
 
@@ -431,7 +768,15 @@
                 const entropy = (Math.log2(new Set(password).size) * password.length).toFixed(2);
                 let text = score >= 80 ? 'Strong' : score >= 50 ? 'Medium' : 'Weak';
                 setStrength({ score, text, entropy });
+            };
 
+            const checkBreach = async () => {
+                if (!password) {
+                    setBreach({ breached: false, count: 0, checked: true });
+                    return;
+                }
+
+                setIsChecking(true);
                 const hash = sha1(password).toUpperCase();
                 const prefix = hash.slice(0, 5);
                 const suffix = hash.slice(5);
@@ -443,39 +788,164 @@
                     for (let line of lines) {
                         const [hashSuffix, count] = line.split(':');
                         if (hashSuffix === suffix) {
-                            setBreach({ breached: true, count: parseInt(count) });
+                            setBreach({ breached: true, count: parseInt(count), checked: true });
+                            setIsChecking(false);
                             return;
                         }
                     }
-                    setBreach({ breached: false, count: 0 });
+                    setBreach({ breached: false, count: 0, checked: true });
                 } catch (error) {
                     console.error('Error checking breach:', error);
+                    setBreach({ breached: false, count: 0, checked: true });
                 }
+                setIsChecking(false);
             };
 
             useEffect(() => {
-                const debounce = setTimeout(() => checkStrength(), 500);
-                return () => clearTimeout(debounce);
+                checkStrength();
             }, [password]);
 
             return (
-                <div className="glass p-8 rounded-3xl">
-                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Password Checker</h2>
-                    <input
-                        type="password"
-                        placeholder="Enter password"
-                        className="w-full p-3 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                <div className="glass p-4 sm:p-8 rounded-3xl">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-indigo-500">Password Checker</h2>
+                    <div className="relative mb-4">
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Enter password to check"
+                            className="w-full p-3 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && checkBreach()}
+                        />
+                        <button
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            <i className={`fa ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                        </button>
+                    </div>
+                    <button
+                        className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction flex items-center justify-center"
+                        onClick={checkBreach}
+                        disabled={isChecking}
+                    >
+                        {isChecking ? (
+                            <span className="flex items-center">
+                                <span className="spinner mr-2"></span> Checking...
+                            </span>
+                        ) : (
+                            'Check Password'
+                        )}
+                    </button>
                     {strength.score > 0 && (
                         <div className="mt-4">
                             <div className={`strength-bar w-${strength.score}/5 ${strength.text === 'Strong' ? 'bg-cyan-500' : strength.text === 'Medium' ? 'bg-yellow-400' : 'bg-red-500'}`}></div>
                             <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">Strength: {strength.text}</p>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Entropy: {strength.entropy} bits</p>
-                            {breach.breached && (
-                                <p className="text-sm text-red-600 dark:text-red-400">Found in {breach.count} breaches!</p>
-                            )}
+                        </div>
+                    )}
+                    {breach.checked && (
+                        <p className={`text-sm mt-2 ${breach.breached ? 'text-red-600 dark:text-red-400' : 'text-cyan-600 dark:text-cyan-400'}`}>
+                            {breach.breached
+                                ? `Warning: This password was found in ${breach.count} breaches!`
+                                : 'No breaches found. This password appears safe.'}
+                        </p>
+                    )}
+                </div>
+            );
+        };
+
+        const TwoFactorAuth = () => {
+            const [secret, setSecret] = useState('');
+            const [serviceName, setServiceName] = useState('');
+            const [showQRModal, setShowQRModal] = useState(false);
+            const qrRef = useRef(null);
+
+            const generate2FASecret = () => {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+                let newSecret = '';
+                const array = new Uint32Array(16);
+                crypto.getRandomValues(array);
+                for (let i = 0; i < 16; i++) {
+                    const randomIndex = Math.floor(array[i] / (0xffffffff + 1) * chars.length);
+                    newSecret += chars[randomIndex];
+                }
+                setSecret(newSecret);
+            };
+
+            const generateQR = () => {
+                if (!secret || !serviceName) {
+                    alert('Please enter a service name and generate a secret.');
+                    return;
+                }
+                qrRef.current.innerHTML = '';
+                const otpauth = `otpauth://totp/${encodeURIComponent(serviceName)}?secret=${secret}&issuer=PasswordVault`;
+                new QRCode(qrRef.current, {
+                    text: otpauth,
+                    width: 128,
+                    height: 128,
+                    colorDark: '#1f2937',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                setShowQRModal(true);
+            };
+
+            return (
+                <div className="glass p-4 sm:p-8 rounded-3xl">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-indigo-500">2FA Setup</h2>
+                    <div className="space-y-4">
+                        <input
+                            type="text"
+                            placeholder="Service Name (e.g., Email)"
+                            className="w-full p-3 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                            value={serviceName}
+                            onChange={(e) => setServiceName(e.target.value)}
+                        />
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                value={secret}
+                                readOnly
+                                className="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                placeholder="Generate a 2FA secret"
+                            />
+                            <button
+                                className="p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
+                                onClick={() => navigator.clipboard.writeText(secret)}
+                                title="Copy Secret"
+                            >
+                                <i className="fa fa-copy"></i>
+                            </button>
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                className="flex-1 p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
+                                onClick={generate2FASecret}
+                            >
+                                Generate Secret
+                            </button>
+                            <button
+                                className="p-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 micro-interaction"
+                                onClick={generateQR}
+                            >
+                                Show QR Code
+                            </button>
+                        </div>
+                    </div>
+                    {showQRModal && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="glass p-6 rounded-2xl max-w-md w-full modal show">
+                                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">2FA QR Code</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Scan with your authenticator app (e.g., Google Authenticator).</p>
+                                <div ref={qrRef} className="flex justify-center mb-4"></div>
+                                <button
+                                    className="w-full p-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 micro-interaction"
+                                    onClick={() => setShowQRModal(false)}
+                                >
+                                    Close
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -494,21 +964,27 @@
                 return score >= 80;
             }).length;
 
+            const expiredPasswords = passwords.filter(pwd => pwd.expiresAt && new Date(pwd.expiresAt) < new Date()).length;
+
             return (
-                <div className="glass p-8 rounded-3xl">
-                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Password Health Dashboard</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                            <h3 className="font-semibold">Total Passwords</h3>
-                            <p className="text-2xl">{passwords.length}</p>
+                <div className="glass p-4 sm:p-8 rounded-3xl">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-indigo-500">Password Health Dashboard</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">Total Passwords</h3>
+                            <p className="text-2xl text-cyan-600 dark:text-cyan-400">{passwords.length}</p>
                         </div>
-                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                            <h3 className="font-semibold">Strong Passwords</h3>
-                            <p className="text-2xl">{strongPasswords}</p>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">Strong Passwords</h3>
+                            <p className="text-2xl text-cyan-600 dark:text-cyan-400">{strongPasswords}</p>
                         </div>
-                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                            <h3 className="font-semibold">Categories</h3>
-                            <p className="text-2xl">{new Set(passwords.map(pwd => pwd.category)).size}</p>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">Expired Passwords</h3>
+                            <p className="text-2xl text-red-600 dark:text-red-400">{expiredPasswords}</p>
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">Categories</h3>
+                            <p className="text-2xl text-cyan-600 dark:text-cyan-400">{new Set(passwords.map(pwd => pwd.category)).size}</p>
                         </div>
                     </div>
                 </div>
