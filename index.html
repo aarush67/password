@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Password Vault</title>
 
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4778277727361005"
+     crossorigin="anonymous"></script>
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
@@ -544,7 +547,204 @@
                 return score >= 80 ? 'Strong' : score >= 50 ? 'Medium' : 'Weak';
             };
 
-            
+            return (
+                <div className="glass p-4 sm:p-8 rounded-3xl">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-cyan-500">Password Vault</h2>
+                    <div className="flex flex-col sm:flex-row gap-2 mb-4">
+                        <button
+                            ref={addButtonRef}
+                            className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                            onClick={() => setShowModal(true)}
+                            onMouseEnter={() => setShowTooltip(true)}
+                            onMouseLeave={() => setShowTooltip(false)}
+                            aria-label="Add new password"
+                        >
+                            <i className="fa fa-plus mr-2"></i> Add Password
+                        </button>
+                        {showTooltip && (
+                            <div
+                                className="tooltip"
+                                style={{
+                                    top: addButtonRef.current.offsetTop + addButtonRef.current.offsetHeight + 8,
+                                    left: addButtonRef.current.offsetLeft
+                                }}
+                            >
+                                Add a new password to your vault
+                            </div>
+                        )}
+                        <button
+                            className="p-3 bg-slate-700 text-white rounded-xl hover:bg-slate-800 micro-interaction"
+                            onClick={exportPasswords}
+                            aria-label="Export passwords"
+                        >
+                            <i className="fa fa-download mr-2"></i> Export
+                        </button>
+                        <label className="p-3 bg-slate-700 text-white rounded-xl hover:bg-slate-800 micro-interaction cursor-pointer">
+                            <i className="fa fa-upload mr-2"></i> Import
+                            <input type="file" accept=".json" onChange={importPasswords} className="hidden" aria-label="Import passwords" />
+                        </label>
+                        <button
+                            className="p-3 bg-slate-700 text-white rounded-xl hover:bg-slate-800 micro-interaction"
+                            onClick={() => setPrivacyMode(!privacyMode)}
+                            aria-label={privacyMode ? 'Reveal Passwords' : 'Hide Passwords'}
+                        >
+                            <i className={`fa fa-${privacyMode ? 'eye-slash' : 'eye'} mr-2`}></i> {privacyMode ? 'Show' : 'Hide'}
+                        </button>
+                        <button
+                            className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                            onClick={exportBackupKey}
+                            aria-label="Export backup key"
+                        >
+                            <i className="fa fa-key mr-2"></i> Backup Key
+                        </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {passwords.length === 0 ? (
+                            <p className="text-gray-600 dark:text-gray-300 col-span-full text-center">No passwords stored yet.</p>
+                        ) : (
+                            passwords.map(pwd => (
+                                <div key={pwd.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                                    <h3 className="font-semibold text-gray-900 dark:text-white">{pwd.name}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-300">{pwd.category}</p>
+                                    <p className={`text-sm text-gray-600 dark:text-gray-300 ${privacyMode ? 'blur-sensitive' : ''}`}>
+                                        {pwd.password}
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Strength: {calculateStrength(pwd.password)}</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        Last Used: {pwd.lastUsed ? new Date(pwd.lastUsed).toLocaleString() : 'Never'}
+                                    </p>
+                                    {passwordHistory[pwd.id]?.length > 0 && (
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                            History: {passwordHistory[pwd.id].length} previous passwords
+                                        </p>
+                                    )}
+                                    <div className="flex gap-2 mt-2">
+                                        <button
+                                            className="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                                            onClick={() => { navigator.clipboard.writeText(pwd.password); markUsed(pwd.id); }}
+                                            title="Copy to Clipboard"
+                                            aria-label="Copy password"
+                                        >
+                                            <i className="fa fa-copy"></i>
+                                        </button>
+                                        <button
+                                            className="p-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+                                            onClick={() => editPassword(pwd)}
+                                            title="Edit Password"
+                                            aria-label="Edit password"
+                                        >
+                                            <i className="fa fa-edit"></i>
+                                        </button>
+                                        <button
+                                            className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                                            onClick={() => deletePassword(pwd.id)}
+                                            title="Delete Password"
+                                            aria-label="Delete password"
+                                        >
+                                            <i className="fa fa-trash"></i>
+                                        </button>
+                                        <button
+                                            className="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                                            onClick={() => sharePasswordEntry(pwd)}
+                                            title="Share Password"
+                                            aria-label="Share password"
+                                        >
+                                            <i className="fa fa-share"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                    {showModal && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="glass p-6 rounded-2xl max-w-md w-full modal show">
+                                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{editId ? 'Edit' : 'Add'} Password</h3>
+                                <input
+                                    type="text"
+                                    placeholder="Name (e.g., Email)"
+                                    className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    aria-label="Password name"
+                                />
+                                <input
+                                    type="password"
+                                    placeholder="Password"
+                                    className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    aria-label="Password"
+                                />
+                                <select
+                                    className="w-full p-3 mb-4 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                    value={category}
+                                    onChange={(e) => setCategory(e.target.value)}
+                                    aria-label="Password category"
+                                >
+                                    <option>General</option>
+                                    <option>Work</option>
+                                    <option>Personal</option>
+                                    <option>Finance</option>
+                                </select>
+                                <div className="flex gap-2">
+                                    <button
+                                        className="flex-1 p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                                        onClick={addOrEditPassword}
+                                        aria-label={editId ? 'Update password' : 'Save password'}
+                                    >
+                                        {editId ? 'Update' : 'Save'}
+                                    </button>
+                                    <button
+                                        className="p-3 bg-slate-700 text-white rounded-xl hover:bg-slate-800 micro-interaction"
+                                        onClick={() => {
+                                            setName('');
+                                            setPassword('');
+                                            setCategory('General');
+                                            setEditId(null);
+                                            setShowModal(false);
+                                        }}
+                                        aria-label="Cancel"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {showShareModal && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="glass p-6 rounded-2xl max-w-md w-full modal show">
+                                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Share Password</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Share this encrypted link with the recipient. They must know the master password to decrypt it.</p>
+                                <input
+                                    type="text"
+                                    value={sharePassword}
+                                    readOnly
+                                    className="w-full p-3 mb-4 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                    aria-label="Encrypted share link"
+                                />
+                                <div className="flex gap-2">
+                                    <button
+                                        className="flex-1 p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                                        onClick={() => navigator.clipboard.writeText(sharePassword)}
+                                        aria-label="Copy share link"
+                                    >
+                                        Copy Link
+                                    </button>
+                                    <button
+                                        className="p-3 bg-slate-700 text-white rounded-xl hover:bg-slate-800 micro-interaction"
+                                        onClick={() => setShowShareModal(false)}
+                                        aria-label="Close"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
         };
 
         const PasswordGenerator = () => {
@@ -643,7 +843,128 @@
                 setNotification({ type: 'success', message: 'Password saved to vault.' });
             };
 
-            
+            return (
+                <div className="glass p-4 sm:p-8 rounded-3xl">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-cyan-500">Password Generator</h2>
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                                Length: {length}
+                            </label>
+                            <input
+                                type="range"
+                                min="8"
+                                max="32"
+                                value={length}
+                                onChange={(e) => setLength(e.target.value)}
+                                className="w-full h-2 bg-gray-200 dark:bg-slate-700 rounded-lg cursor-pointer accent-cyan-500"
+                                disabled={options.passphrase}
+                                aria-label="Password length"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            {Object.keys(options).map(key => (
+                                <label key={key} className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={options[key]}
+                                        onChange={() => setOptions({ ...options, [key]: !options[key], ...(key === 'passphrase' ? { uppercase: false, lowercase: false, numbers: false, symbols: false } : {}) })}
+                                        className="h-4 w-4 text-indigo-600 focus:ring-cyan-500"
+                                        disabled={key !== 'passphrase' && options.passphrase}
+                                        aria-label={key}
+                                    />
+                                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-200">
+                                        {key === 'passphrase' ? 'Easy-to-Remember Passphrase' : key.charAt(0).toUpperCase() + key.slice(1)}
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                                Expire After (days): {expirationDays}
+                            </label>
+                            <input
+                                type="number"
+                                min="1"
+                                max="365"
+                                value={expirationDays}
+                                onChange={(e) => setExpirationDays(e.target.value)}
+                                className="w-full p-3 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                aria-label="Expiration days"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                value={password}
+                                readOnly
+                                className="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                aria-label="Generated password"
+                            />
+                            <button
+                                className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                                onClick={() => navigator.clipboard.writeText(password)}
+                                title="Copy to Clipboard"
+                                aria-label="Copy password"
+                            >
+                                <i className="fa fa-copy"></i>
+                            </button>
+                            <button
+                                className="p-3 bg-slate-700 text-white rounded-xl hover:bg-slate-800 micro-interaction"
+                                onClick={generateQR}
+                                title="Generate QR Code"
+                                aria-label="Generate QR code"
+                            >
+                                <i className="fa fa-qrcode"></i>
+                            </button>
+                            <button
+                                className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                                onClick={saveToVault}
+                                title="Save to Vault"
+                                aria-label="Save to vault"
+                            >
+                                <i className="fa fa-save"></i>
+                            </button>
+                        </div>
+                        <button
+                            ref={generateButtonRef}
+                            className="w-full p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                            onClick={generatePassword}
+                            onMouseEnter={() => setShowTooltip(true)}
+                            onMouseLeave={() => setShowTooltip(false)}
+                            aria-label="Generate password"
+                        >
+                            Generate Password
+                        </button>
+                        {showTooltip && (
+                            <div
+                                className="tooltip"
+                                style={{
+                                    top: generateButtonRef.current.offsetTop + generateButtonRef.current.offsetHeight + 8,
+                                    left: generateButtonRef.current.offsetLeft
+                                }}
+                            >
+                                Create a secure password or passphrase
+                            </div>
+                        )}
+                    </div>
+                    {showQRModal && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="glass p-6 rounded-2xl max-w-md w-full modal show">
+                                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Password QR Code</h3>
+                                <div ref={qrRef} className="flex justify-center mb-4"></div>
+                                <button
+                                    className="w-full p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                                    onClick={() => setShowQRModal(false)}
+                                    aria-label="Close QR modal"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
         };
 
         const PasswordChecker = () => {
@@ -713,7 +1034,57 @@
                 checkStrength();
             }, [password]);
 
-            
+            return (
+                <div className="glass p-4 sm:p-8 rounded-3xl">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-cyan-500">Password Checker</h2>
+                    <div className="relative mb-4">
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Enter password to check"
+                            className="w-full p-3 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && checkBreach()}
+                            aria-label="Password to check"
+                        />
+                        <button
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
+                            onClick={() => setShowPassword(!showPassword)}
+                            aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        >
+                            <i className={`fa ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                        </button>
+                    </div>
+                    <button
+                        className="w-full p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction flex items-center justify-center"
+                        onClick={checkBreach}
+                        disabled={isChecking}
+                        aria-label="Check password for breaches"
+                    >
+                        {isChecking ? (
+                            <span className="flex items-center">
+                                <span className="spinner mr-2"></span> Checking...
+                            </span>
+                        ) : (
+                            'Check for Breaches'
+                        )}
+                    </button>
+                    {strength.score > 0 && (
+                        <div className="mt-4">
+                            <div className={`strength-bar w-${strength.score}/5 ${strength.text === 'Strong' ? 'bg-cyan-500' : strength.text === 'Medium' ? 'bg-yellow-400' : 'bg-red-500'}`}></div>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">Strength: {strength.text}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">Entropy: {strength.entropy} bits</p>
+                        </div>
+                    )}
+                    {breach.checked && (
+                        <p className={`text-sm mt-2 ${breach.breached ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400 font-semibold'}`}>
+                            {breach.breached
+                                ? `Warning: This password was found in ${breach.count} breaches!`
+                                : '✅ Great news! This password is safe and was NOT found in any known data breaches. This password appears safe.'}
+                        </p>
+                    )}
+                </div>
+            );
         };
 
         const TwoFactorAuth = () => {
@@ -767,7 +1138,89 @@
                 return () => clearInterval(interval);
             }, [secret]);
 
-            
+            return (
+                <div className="glass p-4 sm:p-8 rounded-3xl">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-cyan-500">2FA Setup</h2>
+                    <div className="space-y-4">
+                        <input
+                            type="text"
+                            placeholder="Service Name (e.g., Email)"
+                            className="w-full p-3 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                            value={serviceName}
+                            onChange={(e) => setServiceName(e.target.value)}
+                            aria-label="Service name"
+                        />
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                value={secret}
+                                readOnly
+                                className="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                placeholder="Generate a 2FA secret"
+                                aria-label="2FA secret"
+                            />
+                            <button
+                                className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                                onClick={() => navigator.clipboard.writeText(secret)}
+                                title="Copy Secret"
+                                aria-label="Copy 2FA secret"
+                            >
+                                <i className="fa fa-copy"></i>
+                            </button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                value={totpCode}
+                                readOnly
+                                className="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500"
+                                placeholder="TOTP Code"
+                                aria-label="TOTP code"
+                            />
+                            <button
+                                className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                                onClick={() => navigator.clipboard.writeText(totpCode)}
+                                title="Copy TOTP Code"
+                                aria-label="Copy TOTP code"
+                            >
+                                <i className="fa fa-copy"></i>
+                            </button>
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                className="flex-1 p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                                onClick={generate2FASecret}
+                                aria-label="Generate 2FA secret"
+                            >
+                                Generate Secret
+                            </button>
+                            <button
+                                className="p-3 bg-slate-700 text-white rounded-xl hover:bg-slate-800 micro-interaction"
+                                onClick={generateQR}
+                                aria-label="Show QR code"
+                            >
+                                Show QR Code
+                            </button>
+                        </div>
+                    </div>
+                    {showQRModal && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="glass p-6 rounded-2xl max-w-md w-full modal show">
+                                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">2FA QR Code</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Scan with your authenticator app (e.g., Google Authenticator).</p>
+                                <div ref={qrRef} className="flex justify-center mb-4"></div>
+                                <button
+                                    className="w-full p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 micro-interaction"
+                                    onClick={() => setShowQRModal(false)}
+                                    aria-label="Close QR modal"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
         };
 
         const Dashboard = ({ passwords }) => {
@@ -784,7 +1237,29 @@
 
             const expiredPasswords = passwords.filter(pwd => pwd.expiresAt && new Date(pwd.expiresAt) < new Date()).length;
 
-            
+            return (
+                <div className="glass p-4 sm:p-8 rounded-3xl">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-cyan-500">Password Health Dashboard</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">Total Passwords</h3>
+                            <p className="text-2xl text-green-600 dark:text-green-400 font-semibold">{passwords.length}</p>
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">Strong Passwords</h3>
+                            <p className="text-2xl text-green-600 dark:text-green-400 font-semibold">{strongPasswords}</p>
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">Expired Passwords</h3>
+                            <p className="text-2xl text-red-600 dark:text-red-400">{expiredPasswords}</p>
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg micro-interaction">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">Categories</h3>
+                            <p className="text-2xl text-green-600 dark:text-green-400 font-semibold">{new Set(passwords.map(pwd => pwd.category)).size}</p>
+                        </div>
+                    </div>
+                </div>
+            );
         };
 
         const root = createRoot(document.getElementById('root'));
